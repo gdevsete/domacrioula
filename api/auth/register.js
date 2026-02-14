@@ -38,6 +38,11 @@ export default async function handler(req, res) {
   try {
     const { email, password, name, phone, document, address } = req.body
 
+    console.log('=== REGISTRO RECEBIDO ===')
+    console.log('Email:', email)
+    console.log('Name:', name)
+    console.log('Address recebido:', JSON.stringify(address))
+
     // Validações
     if (!email || !password || !name) {
       return res.status(400).json({ 
@@ -76,6 +81,7 @@ export default async function handler(req, res) {
 
     // Montar array de endereços
     const addresses = address ? [address] : []
+    console.log('Addresses a salvar:', JSON.stringify(addresses))
 
     // Salvar dados adicionais na tabela users
     const { data: userData, error: userError } = await supabase
@@ -91,6 +97,8 @@ export default async function handler(req, res) {
       })
       .select()
       .single()
+
+    console.log('userData salvo:', JSON.stringify(userData))
 
     if (userError) {
       console.error('User insert error:', userError)
