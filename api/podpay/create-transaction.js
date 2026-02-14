@@ -76,31 +76,28 @@ export default async function handler(req, res) {
     const cleanDocument = customer.document ? customer.document.replace(/\D/g, '') : null
     const cleanPhone = customer.phone ? customer.phone.replace(/\D/g, '') : null
 
-    // Payload para PodPay
+    // Payload para PodPay - formato conforme documentação
     const payload = {
       amount: Math.round(amount), // Valor em centavos
       paymentMethod: 'pix',
       customer: {
         name: customer.name || 'Cliente',
-        email: customer.email,
-        phone: cleanPhone || undefined,
-        document: cleanDocument || undefined,
-        documentType: cleanDocument && cleanDocument.length === 14 ? 'cnpj' : 'cpf'
-      },
-      items: items.map((item, index) => ({
-        title: item.title || item.name,
-        unitPrice: Math.round(item.unitPrice || item.price),
-        quantity: item.quantity || 1
-      })),
-      pix: {
-        expiresIn: pix?.expiresIn || 3600
+        email: customer.email
       }
+    }
+
+    // Adicionar campos opcionais se existirem
+    if (cleanPhone) {
+      payload.customer.phone = cleanPhone
+    }
+    if (cleanDocument) {
+      payload.customer.document = cleanDocument
+      payload.customer.documentType = cleanDocument.length === 14 ? 'cnpj' : 'cpf'
     }
 
     console.log('[PodPay] Sending to API:', JSON.stringify(payload))
 
     // Autenticação Basic: publicKey:secretKey em base64
-    // Se não tiver publicKey, usa secretKey como ambos
     const publicKey = process.env.PODPAY_PUBLIC_KEY || ''
     const auth = 'Basic ' + Buffer.from(publicKey + ':' + secretKey).toString('base64')
 
@@ -120,11 +117,11 @@ export default async function handler(req, res) {
     console.log('[PodPay] API Response:', response.status, JSON.stringify(data))
 
     if (!response.ok) {
-      console.error('PodPay API error:', data)
+      console.error('PodPay API error:', JSON.stringify(data))
       return res.status(response.status).json({
         error: 'Payment API error',
-        message: data.errors?.[0]?.message || data.message || 'Failed to create transaction',
-        details: data.errors || data
+        message: data.message || data.errors?.[0]?.message || 'Failed to create transaction',
+        details: data
       })
     }
 
