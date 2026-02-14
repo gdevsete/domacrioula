@@ -35,7 +35,7 @@ const safeFetch = async (url, options) => {
 /**
  * Registrar novo usuário
  */
-export const registerUser = async ({ email, password, name, phone, document }) => {
+export const registerUser = async ({ email, password, name, phone, document, address }) => {
   const apiUrl = getApiUrl()
   
   const { response, data } = await safeFetch(`${apiUrl}/api/auth/register`, {
@@ -43,7 +43,7 @@ export const registerUser = async ({ email, password, name, phone, document }) =
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ email, password, name, phone, document })
+    body: JSON.stringify({ email, password, name, phone, document, address })
   })
 
   if (!response.ok) {
