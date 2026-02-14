@@ -87,7 +87,8 @@ export default async function handler(req, res) {
       items: items.map((item, index) => ({
         title: item.title || item.name,
         unitPrice: Math.round(item.unitPrice || item.price),
-        quantity: item.quantity || 1
+        quantity: item.quantity || 1,
+        tangible: true
       }))
     }
 
