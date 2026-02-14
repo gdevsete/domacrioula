@@ -1,55 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import * as authService from '../services/authService'
 
 const AuthContext = createContext(null)
 
-// Chave para armazenamento
+// Chave para armazenamento local (cache)
 const STORAGE_KEYS = {
   USER: 'doma_crioula_user',
-  TOKEN: 'doma_crioula_token',
-  USERS_DB: 'doma_crioula_users_db',
-  ORDERS_DB: 'doma_crioula_orders_db'
-}
-
-// Gerar ID único
-const generateId = () => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2)
-}
-
-// Gerar token simples (em produção usar JWT)
-const generateToken = (userId) => {
-  const payload = {
-    userId,
-    exp: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 dias
-    iat: Date.now()
-  }
-  return btoa(JSON.stringify(payload))
-}
-
-// Validar token
-const validateToken = (token) => {
-  try {
-    const payload = JSON.parse(atob(token))
-    if (payload.exp < Date.now()) return null
-    return payload
-  } catch {
-    return null
-  }
-}
-
-// Hash simples (em produção usar bcrypt no servidor)
-const hashPassword = (password) => {
-  let hash = 0
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash
-  }
-  return hash.toString(36) + btoa(password.split('').reverse().join(''))
-}
-
-// Verificar senha
-const verifyPassword = (password, hashedPassword) => {
-  return hashPassword(password) === hashedPassword
+  TOKEN: 'doma_crioula_token'
 }
 
 export const AuthProvider = ({ children }) => {
@@ -57,26 +14,34 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [initialized, setInitialized] = useState(false)
 
-  // Carregar usuário do localStorage ao iniciar
+  // Obter token do localStorage
+  const getToken = useCallback(() => {
+    return localStorage.getItem(STORAGE_KEYS.TOKEN)
+  }, [])
+
+  // Carregar usuário ao iniciar
   useEffect(() => {
-    const loadUser = () => {
+    const loadUser = async () => {
       try {
-        const token = localStorage.getItem(STORAGE_KEYS.TOKEN)
+        const token = getToken()
         const storedUser = localStorage.getItem(STORAGE_KEYS.USER)
         
         if (token && storedUser) {
-          const payload = validateToken(token)
-          if (payload) {
-            const userData = JSON.parse(storedUser)
-            setUser(userData)
-          } else {
-            // Token expirado
-            localStorage.removeItem(STORAGE_KEYS.TOKEN)
-            localStorage.removeItem(STORAGE_KEYS.USER)
+          // Tentar validar token no servidor
+          try {
+            const { user: serverUser } = await authService.getMe(token)
+            setUser(serverUser)
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(serverUser))
+          } catch (error) {
+            // Se falhar, usar dados do cache
+            console.warn('Usando cache local:', error.message)
+            setUser(JSON.parse(storedUser))
           }
         }
       } catch (error) {
         console.error('Erro ao carregar usuário:', error)
+        localStorage.removeItem(STORAGE_KEYS.TOKEN)
+        localStorage.removeItem(STORAGE_KEYS.USER)
       } finally {
         setLoading(false)
         setInitialized(true)
@@ -84,43 +49,13 @@ export const AuthProvider = ({ children }) => {
     }
 
     loadUser()
-  }, [])
-
-  // Obter banco de usuários
-  const getUsersDB = useCallback(() => {
-    try {
-      const db = localStorage.getItem(STORAGE_KEYS.USERS_DB)
-      return db ? JSON.parse(db) : []
-    } catch {
-      return []
-    }
-  }, [])
-
-  // Salvar banco de usuários
-  const saveUsersDB = useCallback((users) => {
-    localStorage.setItem(STORAGE_KEYS.USERS_DB, JSON.stringify(users))
-  }, [])
-
-  // Obter banco de pedidos
-  const getOrdersDB = useCallback(() => {
-    try {
-      const db = localStorage.getItem(STORAGE_KEYS.ORDERS_DB)
-      return db ? JSON.parse(db) : []
-    } catch {
-      return []
-    }
-  }, [])
-
-  // Salvar banco de pedidos
-  const saveOrdersDB = useCallback((orders) => {
-    localStorage.setItem(STORAGE_KEYS.ORDERS_DB, JSON.stringify(orders))
-  }, [])
+  }, [getToken])
 
   // Registrar novo usuário
   const register = useCallback(async (userData) => {
-    const { name, email, password, phone, document, documentType, ...address } = userData
+    const { name, email, password, phone, document } = userData
     
-    // Validações
+    // Validações básicas
     if (!name || !email || !password) {
       throw new Error('Nome, e-mail e senha são obrigatórios')
     }
@@ -129,51 +64,23 @@ export const AuthProvider = ({ children }) => {
       throw new Error('A senha deve ter pelo menos 6 caracteres')
     }
     
-    const users = getUsersDB()
-    
-    // Verificar se e-mail já existe
-    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-      throw new Error('Este e-mail já está cadastrado')
-    }
-    
-    // Criar novo usuário
-    const newUser = {
-      id: generateId(),
-      name: name.trim(),
+    // Chamar API de registro
+    const result = await authService.registerUser({
       email: email.toLowerCase().trim(),
-      password: hashPassword(password),
-      phone: phone || '',
-      document: document || '',
-      documentType: documentType || 'cpf',
-      address: {
-        zipCode: address.zipCode || '',
-        street: address.street || '',
-        streetNumber: address.streetNumber || '',
-        complement: address.complement || '',
-        neighborhood: address.neighborhood || '',
-        city: address.city || '',
-        state: address.state || ''
-      },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
+      password,
+      name: name.trim(),
+      phone: phone || null,
+      document: document || null
+    })
     
-    // Salvar no banco
-    users.push(newUser)
-    saveUsersDB(users)
+    // Salvar token e usuário localmente
+    localStorage.setItem(STORAGE_KEYS.TOKEN, result.token)
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user))
     
-    // Gerar token e fazer login
-    const token = generateToken(newUser.id)
-    const userWithoutPassword = { ...newUser }
-    delete userWithoutPassword.password
+    setUser(result.user)
     
-    localStorage.setItem(STORAGE_KEYS.TOKEN, token)
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userWithoutPassword))
-    
-    setUser(userWithoutPassword)
-    
-    return userWithoutPassword
-  }, [getUsersDB, saveUsersDB])
+    return result.user
+  }, [])
 
   // Login
   const login = useCallback(async (email, password) => {
@@ -181,29 +88,20 @@ export const AuthProvider = ({ children }) => {
       throw new Error('E-mail e senha são obrigatórios')
     }
     
-    const users = getUsersDB()
-    const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+    // Chamar API de login
+    const result = await authService.loginUser({
+      email: email.toLowerCase().trim(),
+      password
+    })
     
-    if (!foundUser) {
-      throw new Error('E-mail ou senha incorretos')
-    }
+    // Salvar token e usuário localmente
+    localStorage.setItem(STORAGE_KEYS.TOKEN, result.token)
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user))
     
-    if (!verifyPassword(password, foundUser.password)) {
-      throw new Error('E-mail ou senha incorretos')
-    }
+    setUser(result.user)
     
-    // Gerar token
-    const token = generateToken(foundUser.id)
-    const userWithoutPassword = { ...foundUser }
-    delete userWithoutPassword.password
-    
-    localStorage.setItem(STORAGE_KEYS.TOKEN, token)
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userWithoutPassword))
-    
-    setUser(userWithoutPassword)
-    
-    return userWithoutPassword
-  }, [getUsersDB])
+    return result.user
+  }, [])
 
   // Logout
   const logout = useCallback(() => {
@@ -218,116 +116,81 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Usuário não autenticado')
     }
     
-    const users = getUsersDB()
-    const userIndex = users.findIndex(u => u.id === user.id)
-    
-    if (userIndex === -1) {
-      throw new Error('Usuário não encontrado')
+    const token = getToken()
+    if (!token) {
+      throw new Error('Token não encontrado')
     }
     
-    // Atualizar dados
-    const updatedUser = {
-      ...users[userIndex],
-      ...updates,
-      address: {
-        ...users[userIndex].address,
-        ...(updates.address || {})
-      },
-      updatedAt: new Date().toISOString()
-    }
+    // Chamar API de atualização
+    const result = await authService.updateUser(token, updates)
     
-    // Manter senha original
-    if (updates.password) {
-      updatedUser.password = hashPassword(updates.password)
-    } else {
-      updatedUser.password = users[userIndex].password
-    }
+    // Atualizar cache local
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user))
+    setUser(result.user)
     
-    users[userIndex] = updatedUser
-    saveUsersDB(users)
-    
-    const userWithoutPassword = { ...updatedUser }
-    delete userWithoutPassword.password
-    
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userWithoutPassword))
-    setUser(userWithoutPassword)
-    
-    return userWithoutPassword
-  }, [user, getUsersDB, saveUsersDB])
+    return result.user
+  }, [user, getToken])
 
   // Adicionar pedido
-  const addOrder = useCallback((orderData) => {
-    const orders = getOrdersDB()
+  const addOrder = useCallback(async (orderData) => {
+    const token = getToken()
     
-    const newOrder = {
-      id: generateId(),
-      orderNumber: `DC${Date.now().toString().slice(-8)}`,
-      userId: user?.id || null,
-      customerEmail: orderData.customerEmail,
-      customerName: orderData.customerName,
-      customerPhone: orderData.customerPhone,
-      customerDocument: orderData.customerDocument,
+    // Chamar API de criação de pedido
+    const result = await authService.createOrder(token, {
       items: orderData.items,
-      subtotal: orderData.subtotal,
-      discount: orderData.discount || 0,
       total: orderData.total,
-      paymentStatus: orderData.paymentStatus || 'pending', // pending, paid, failed, refunded
-      paymentMethod: orderData.paymentMethod || 'pix',
-      transactionId: orderData.transactionId,
+      subtotal: orderData.subtotal,
+      shipping: orderData.shipping || 0,
+      discount: orderData.discount || 0,
+      customer: {
+        email: orderData.customerEmail,
+        name: orderData.customerName,
+        phone: orderData.customerPhone,
+        document: orderData.customerDocument
+      },
       shippingAddress: orderData.shippingAddress,
-      trackingCode: null, // Será preenchido pelo admin
-      trackingUrl: null,
-      status: 'processing', // processing, shipped, delivered, cancelled
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
+      paymentMethod: orderData.paymentMethod,
+      transactionId: orderData.transactionId,
+      pixCode: orderData.pixCode,
+      pixQrCode: orderData.pixQrCode
+    })
     
-    orders.push(newOrder)
-    saveOrdersDB(orders)
-    
-    return newOrder
-  }, [user, getOrdersDB, saveOrdersDB])
+    return result.order
+  }, [getToken])
 
   // Obter pedidos do usuário
-  const getUserOrders = useCallback(() => {
-    if (!user) return []
+  const getUserOrders = useCallback(async () => {
+    const token = getToken()
+    if (!token) return []
     
-    const orders = getOrdersDB()
-    return orders
-      .filter(o => o.userId === user.id || o.customerEmail?.toLowerCase() === user.email?.toLowerCase())
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  }, [user, getOrdersDB])
+    try {
+      const orders = await authService.getOrders(token)
+      return orders
+    } catch (error) {
+      console.error('Erro ao buscar pedidos:', error)
+      return []
+    }
+  }, [getToken])
 
-  // Buscar pedido por código de rastreio ou número
-  const findOrder = useCallback((searchTerm) => {
-    const orders = getOrdersDB()
+  // Buscar pedido por número (mantido para compatibilidade)
+  const findOrder = useCallback(async (searchTerm) => {
+    // Por enquanto, buscar na lista de pedidos
+    const orders = await getUserOrders()
     const term = searchTerm.trim().toUpperCase()
     
     return orders.find(o => 
+      o.order_number?.toUpperCase() === term ||
       o.orderNumber?.toUpperCase() === term ||
-      o.trackingCode?.toUpperCase() === term ||
-      o.transactionId?.toUpperCase() === term
+      o.transaction_id?.toUpperCase() === term
     )
-  }, [getOrdersDB])
+  }, [getUserOrders])
 
-  // Atualizar pedido (para admin futuro)
-  const updateOrder = useCallback((orderId, updates) => {
-    const orders = getOrdersDB()
-    const orderIndex = orders.findIndex(o => o.id === orderId)
-    
-    if (orderIndex === -1) {
-      throw new Error('Pedido não encontrado')
-    }
-    
-    orders[orderIndex] = {
-      ...orders[orderIndex],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    }
-    
-    saveOrdersDB(orders)
-    return orders[orderIndex]
-  }, [getOrdersDB, saveOrdersDB])
+  // Atualizar pedido (para admin - será implementado separadamente)
+  const updateOrder = useCallback(async (orderId, updates) => {
+    // TODO: Implementar quando necessário
+    console.warn('updateOrder: não implementado ainda')
+    return null
+  }, [])
 
   const value = {
     user,
@@ -341,7 +204,8 @@ export const AuthProvider = ({ children }) => {
     addOrder,
     getUserOrders,
     findOrder,
-    updateOrder
+    updateOrder,
+    getToken
   }
 
   return (
