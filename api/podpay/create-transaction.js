@@ -108,6 +108,11 @@ export default async function handler(req, res) {
 
     // Autenticação Basic: publicKey:secretKey em base64
     const publicKey = process.env.PODPAY_PUBLIC_KEY || ''
+    
+    // Log para debug (mostra apenas início das chaves)
+    console.log('[PodPay] Auth check - publicKey starts with:', publicKey ? publicKey.substring(0, 10) + '...' : 'EMPTY')
+    console.log('[PodPay] Auth check - secretKey starts with:', secretKey ? secretKey.substring(0, 10) + '...' : 'EMPTY')
+    
     const auth = 'Basic ' + Buffer.from(publicKey + ':' + secretKey).toString('base64')
 
     // Chamar API PodPay
