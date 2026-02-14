@@ -3,6 +3,19 @@
 -- Execute este SQL no Supabase SQL Editor
 -- =====================================================
 
+-- Tabela de administradores
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT DEFAULT 'admin', -- 'super_admin' ou 'admin'
+  avatar TEXT,
+  last_login TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Tabela de usuários (clientes)
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -101,11 +114,15 @@ CREATE TABLE IF NOT EXISTS analytics_events (
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number);
 CREATE INDEX IF NOT EXISTS idx_analytics_visits_created ON analytics_visits(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_visits_visitor ON analytics_visits(visitor_id);
+CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
+CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email);
 
 -- Habilitar RLS (Row Level Security)
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
@@ -145,6 +162,21 @@ CREATE POLICY "Service role full access analytics visits" ON analytics_visits
 
 CREATE POLICY "Service role full access analytics events" ON analytics_events
   FOR ALL USING (auth.role() = 'service_role');
+
+CREATE POLICY "Service role full access admins" ON admins
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- =====================================================
+-- CRIAR ADMIN PADRÃO (execute uma vez)
+-- Senha: Admin@2026! (hash bcrypt abaixo)
+-- =====================================================
+INSERT INTO admins (email, password_hash, name, role) 
+VALUES (
+  'admin@domacrioula.com.br',
+  '$2b$10$rOvHPxfzO7rE5PbZi8WkueBQsMgY7.4QL7P.m8vYVEXvCgFIk5Wbq',
+  'Administrador',
+  'super_admin'
+) ON CONFLICT (email) DO NOTHING;
 
 -- =====================================================
 -- APÓS EXECUTAR, COPIE AS CREDENCIAIS:
