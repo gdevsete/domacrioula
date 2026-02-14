@@ -3,9 +3,8 @@ import * as authService from '../services/authService'
 
 const AuthContext = createContext(null)
 
-// Chave para armazenamento local (cache)
+// Chave para armazenamento local (apenas token)
 const STORAGE_KEYS = {
-  USER: 'doma_crioula_user',
   TOKEN: 'doma_crioula_token'
 }
 
@@ -19,31 +18,30 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem(STORAGE_KEYS.TOKEN)
   }, [])
 
-  // Carregar usuário ao iniciar
+  // Carregar usuário ao iniciar (sempre do servidor)
   useEffect(() => {
     const loadUser = async () => {
       try {
         const token = getToken()
-        const storedUser = localStorage.getItem(STORAGE_KEYS.USER)
         
-        if (token && storedUser) {
-          // Tentar validar token no servidor
+        if (token) {
+          // Buscar dados do servidor
           try {
             const { user: serverUser } = await authService.getMe(token)
+            console.log('Dados do servidor:', serverUser)
             setUser(serverUser)
-            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(serverUser))
           } catch (error) {
             // Token inválido - limpar e deslogar
             console.warn('Token inválido, fazendo logout:', error.message)
             localStorage.removeItem(STORAGE_KEYS.TOKEN)
-            localStorage.removeItem(STORAGE_KEYS.USER)
             setUser(null)
           }
+        } else {
+          setUser(null)
         }
       } catch (error) {
         console.error('Erro ao carregar usuário:', error)
         localStorage.removeItem(STORAGE_KEYS.TOKEN)
-        localStorage.removeItem(STORAGE_KEYS.USER)
       } finally {
         setLoading(false)
         setInitialized(true)
@@ -55,7 +53,10 @@ export const AuthProvider = ({ children }) => {
 
   // Registrar novo usuário
   const register = useCallback(async (userData) => {
-    const { name, email, password, phone, document } = userData
+    const { 
+      name, email, password, phone, document,
+      zipCode, street, streetNumber, complement, neighborhood, city, state 
+    } = userData
     
     // Validações básicas
     if (!name || !email || !password) {
@@ -66,18 +67,31 @@ export const AuthProvider = ({ children }) => {
       throw new Error('A senha deve ter pelo menos 6 caracteres')
     }
     
+    // Montar endereço se preenchido
+    const address = zipCode ? {
+      zipCode,
+      street: street || '',
+      streetNumber: streetNumber || '',
+      complement: complement || '',
+      neighborhood: neighborhood || '',
+      city: city || '',
+      state: state || ''
+    } : null
+    
     // Chamar API de registro
     const result = await authService.registerUser({
       email: email.toLowerCase().trim(),
       password,
       name: name.trim(),
       phone: phone || null,
-      document: document || null
+      document: document || null,
+      address
     })
     
-    // Salvar token e usuário localmente
-    localStorage.setItem(STORAGE_KEYS.TOKEN, result.token)
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user))
+    // Salvar apenas o token (dados vêm do servidor)
+    if (result.token) {
+      localStorage.setItem(STORAGE_KEYS.TOKEN, result.token)
+    }
     
     setUser(result.user)
     
@@ -96,9 +110,8 @@ export const AuthProvider = ({ children }) => {
       password
     })
     
-    // Salvar token e usuário localmente
+    // Salvar apenas o token (dados vêm do servidor)
     localStorage.setItem(STORAGE_KEYS.TOKEN, result.token)
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user))
     
     setUser(result.user)
     
@@ -108,7 +121,6 @@ export const AuthProvider = ({ children }) => {
   // Logout
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEYS.TOKEN)
-    localStorage.removeItem(STORAGE_KEYS.USER)
     setUser(null)
   }, [])
 
@@ -126,8 +138,7 @@ export const AuthProvider = ({ children }) => {
     // Chamar API de atualização
     const result = await authService.updateUser(token, updates)
     
-    // Atualizar cache local
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user))
+    // Atualizar estado (dados salvos no servidor)
     setUser(result.user)
     
     return result.user

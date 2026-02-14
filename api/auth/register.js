@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   const supabase = createClient(supabaseUrl, supabaseKey)
 
   try {
-    const { email, password, name, phone, document } = req.body
+    const { email, password, name, phone, document, address } = req.body
 
     // Validações
     if (!email || !password || !name) {
@@ -74,6 +74,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: authError.message })
     }
 
+    // Montar array de endereços
+    const addresses = address ? [address] : []
+
     // Salvar dados adicionais na tabela users
     const { data: userData, error: userError } = await supabase
       .from('users')
@@ -83,7 +86,7 @@ export default async function handler(req, res) {
         name,
         phone: phone || null,
         document: document || null,
-        addresses: [],
+        addresses: addresses,
         created_at: new Date().toISOString()
       })
       .select()
