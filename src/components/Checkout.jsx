@@ -211,7 +211,7 @@ const TESTIMONIALS = [
 ]
 
 const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
-  const { user, isAuthenticated, addOrder } = useAuth()
+  const { user, isAuthenticated, addOrder, updateProfile } = useAuth()
   const [step, setStep] = useState('form') // form, processing, pix, success, error
   const [docType, setDocType] = useState('cpf') // cpf ou cnpj
   const [loadingCEP, setLoadingCEP] = useState(false)
@@ -335,6 +335,16 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
             if (!orderSaved) {
               try {
                 const discount = quantity >= 3 ? (product.price * quantity * 0.20) : 0
+                const shippingAddress = {
+                  street: formData.street,
+                  streetNumber: formData.streetNumber,
+                  complement: formData.complement,
+                  neighborhood: formData.neighborhood,
+                  city: formData.city,
+                  state: formData.state,
+                  zipCode: formData.zipCode
+                }
+                
                 addOrder({
                   customerEmail: formData.email,
                   customerName: formData.name,
@@ -353,16 +363,23 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
                   paymentStatus: 'paid',
                   paymentMethod: 'pix',
                   transactionId: transaction.transactionId,
-                  shippingAddress: {
-                    street: formData.street,
-                    streetNumber: formData.streetNumber,
-                    complement: formData.complement,
-                    neighborhood: formData.neighborhood,
-                    city: formData.city,
-                    state: formData.state,
-                    zipCode: formData.zipCode
-                  }
+                  shippingAddress
                 })
+                
+                // Salvar endereço no perfil do usuário logado
+                if (isAuthenticated && updateProfile) {
+                  try {
+                    await updateProfile({
+                      phone: formData.phone,
+                      document: formData.document,
+                      address: shippingAddress
+                    })
+                  } catch (profileErr) {
+                    console.error('Erro ao atualizar perfil:', profileErr)
+                    // Não bloquear o fluxo por erro de perfil
+                  }
+                }
+                
                 setOrderSaved(true)
               } catch (err) {
                 console.error('Erro ao salvar pedido:', err)
@@ -379,7 +396,7 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
       }, 5000) // Verifica a cada 5 segundos
     }
     return () => clearInterval(interval)
-  }, [step, transaction, orderSaved, addOrder, formData, product, quantity])
+  }, [step, transaction, orderSaved, addOrder, formData, product, quantity, isAuthenticated, updateProfile])
 
   const validateForm = () => {
     const newErrors = {}

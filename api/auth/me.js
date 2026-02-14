@@ -58,6 +58,10 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Usuário não encontrado' })
       }
 
+      // Extrair primeiro endereço do array para facilitar frontend
+      const addresses = userData.addresses || []
+      const address = addresses.length > 0 ? addresses[0] : null
+
       return res.status(200).json({
         user: {
           id: userData.id,
@@ -65,20 +69,29 @@ export default async function handler(req, res) {
           name: userData.name,
           phone: userData.phone,
           document: userData.document,
-          addresses: userData.addresses || []
+          address: address,
+          addresses: addresses
         }
       })
     }
 
     // PUT - Atualizar usuário
     if (req.method === 'PUT') {
-      const { name, phone, document, addresses } = req.body
+      const { name, phone, document, addresses, address } = req.body
 
       const updates = {}
       if (name) updates.name = name
       if (phone !== undefined) updates.phone = phone
       if (document !== undefined) updates.document = document
-      if (addresses !== undefined) updates.addresses = addresses
+      
+      // Suporta tanto 'address' (objeto) quanto 'addresses' (array)
+      if (address !== undefined) {
+        // Se recebeu address singular, converte para array
+        updates.addresses = [address]
+      } else if (addresses !== undefined) {
+        updates.addresses = addresses
+      }
+      
       updates.updated_at = new Date().toISOString()
 
       const { data: userData, error } = await supabase
@@ -93,6 +106,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Erro ao atualizar' })
       }
 
+      // Extrair primeiro endereço do array para facilitar frontend
+      const updatedAddresses = userData.addresses || []
+      const updatedAddress = updatedAddresses.length > 0 ? updatedAddresses[0] : null
+
       return res.status(200).json({
         success: true,
         user: {
@@ -101,7 +118,8 @@ export default async function handler(req, res) {
           name: userData.name,
           phone: userData.phone,
           document: userData.document,
-          addresses: userData.addresses || []
+          address: updatedAddress,
+          addresses: updatedAddresses
         }
       })
     }

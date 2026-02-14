@@ -64,6 +64,10 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Usuário não encontrado' })
     }
 
+    // Extrair primeiro endereço do array para facilitar frontend
+    const addresses = userData.addresses || []
+    const address = addresses.length > 0 ? addresses[0] : null
+
     return res.status(200).json({
       success: true,
       user: {
@@ -72,7 +76,8 @@ export default async function handler(req, res) {
         name: userData.name,
         phone: userData.phone,
         document: userData.document,
-        addresses: userData.addresses || []
+        address: address,
+        addresses: addresses
       },
       token: authData.session.access_token
     })

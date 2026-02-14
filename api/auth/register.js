@@ -83,6 +83,7 @@ export default async function handler(req, res) {
         name,
         phone: phone || null,
         document: document || null,
+        addresses: [],
         created_at: new Date().toISOString()
       })
       .select()
@@ -95,11 +96,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Erro ao criar usuário' })
     }
 
-    // Gerar token de sessão
-    const { data: session, error: sessionError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: email.toLowerCase()
+    // Fazer login automático para obter token válido
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase(),
+      password
     })
+
+    if (loginError) {
+      console.error('Auto-login error:', loginError)
+      // Ainda retornar sucesso, usuário terá que fazer login manual
+      return res.status(201).json({
+        success: true,
+        user: {
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          phone: userData.phone,
+          document: userData.document,
+          address: null,
+          addresses: []
+        },
+        token: null,
+        message: 'Cadastro realizado. Faça login para continuar.'
+      })
+    }
 
     return res.status(201).json({
       success: true,
@@ -107,9 +127,12 @@ export default async function handler(req, res) {
         id: userData.id,
         email: userData.email,
         name: userData.name,
-        phone: userData.phone
+        phone: userData.phone,
+        document: userData.document,
+        address: null,
+        addresses: []
       },
-      token: authData.user.id // Usar ID como token simples
+      token: loginData.session.access_token
     })
 
   } catch (error) {
