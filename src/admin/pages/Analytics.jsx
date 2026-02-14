@@ -440,13 +440,13 @@ const Analytics = () => {
           )}
 
           <div className="pixels-grid">
-            {/* Facebook Pixel */}
+            {/* Meta Pixel (Facebook + Instagram) */}
             <div className="pixel-card">
               <div className="pixel-header">
                 <span className="pixel-icon">📘</span>
                 <div>
-                  <h3>Facebook Pixel</h3>
-                  <p>Rastreie conversões e crie audiências</p>
+                  <h3>Meta Pixel (Facebook + Instagram)</h3>
+                  <p>Um único pixel para Facebook e Instagram Ads</p>
                 </div>
               </div>
               <div className="pixel-input-group">
@@ -460,7 +460,7 @@ const Analytics = () => {
                     facebookPixelId: e.target.value
                   }))}
                 />
-                <small>Encontre em: Gerenciador de Eventos → Fontes de Dados → Web</small>
+                <small>Meta Business Suite → Gerenciador de Eventos → Fontes de Dados</small>
               </div>
               <div className="pixel-events">
                 <h4>Eventos rastreados automaticamente:</h4>
