@@ -148,6 +148,9 @@ export default async function handler(req, res) {
       'data.qrcode': data.qrcode
     }))
 
+    // Calcular data de expiração (1 hora a partir de agora)
+    const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString()
+
     // Retornar dados da transação - tentar múltiplos caminhos possíveis
     const pixData = data.pix || {}
     return res.status(200).json({
@@ -159,7 +162,7 @@ export default async function handler(req, res) {
         qrCode: pixData.qrCode || pixData.qrcode || pixData.qr_code || data.pixQrCode || data.qrCode || data.qrcode,
         qrCodeImage: pixData.qrCodeImage || pixData.qrcodeImage || pixData.qr_code_url || pixData.qrCodeUrl || data.pixQrCodeUrl,
         copyPaste: pixData.copyPaste || pixData.copiaECola || pixData.qrCode || pixData.qrcode || data.pixQrCode || data.qrCode,
-        expiresAt: pixData.expiresAt || pixData.expirationDate || data.pixExpirationDate || data.expiresAt
+        expiresAt: expiresAt // Usar data calculada
       },
       createdAt: data.createdAt || data.date_created || data.created_at,
       // Incluir dados brutos para debug
