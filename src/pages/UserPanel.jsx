@@ -140,10 +140,13 @@ const UserPanel = () => {
 
   // Carregar pedidos
   useEffect(() => {
-    if (isAuthenticated) {
-      const userOrders = getUserOrders()
-      setOrders(userOrders)
+    const loadOrders = async () => {
+      if (isAuthenticated) {
+        const userOrders = await getUserOrders()
+        setOrders(userOrders || [])
+      }
     }
+    loadOrders()
   }, [isAuthenticated, getUserOrders])
 
   const handleProfileChange = (e) => {

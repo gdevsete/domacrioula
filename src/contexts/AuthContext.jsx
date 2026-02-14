@@ -33,9 +33,11 @@ export const AuthProvider = ({ children }) => {
             setUser(serverUser)
             localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(serverUser))
           } catch (error) {
-            // Se falhar, usar dados do cache
-            console.warn('Usando cache local:', error.message)
-            setUser(JSON.parse(storedUser))
+            // Token inválido - limpar e deslogar
+            console.warn('Token inválido, fazendo logout:', error.message)
+            localStorage.removeItem(STORAGE_KEYS.TOKEN)
+            localStorage.removeItem(STORAGE_KEYS.USER)
+            setUser(null)
           }
         }
       } catch (error) {
