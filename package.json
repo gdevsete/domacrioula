@@ -1,0 +1,35 @@
+{
+  "name": "doma-crioula",
+  "version": "2.0.0",
+  "description": "Site catálogo da Doma Crioula - Produtos para Churrasco",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "dev:vite": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "keywords": [
+    "churrasco",
+    "caixa térmica",
+    "facas personalizadas",
+    "RS"
+  ],
+  "author": "Doma Crioula LTDA",
+  "license": "ISC",
+  "dependencies": {
+    "lucide-react": "^0.564.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.4",
+    "vite": "^7.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

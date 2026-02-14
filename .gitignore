@@ -1,0 +1,49 @@
+# ===========================================
+# DOMA CRIOULA - Git Ignore
+# ===========================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.vite/
+
+# Environment variables (NUNCA commitar!)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Vercel
+.vercel
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output
+
+# Misc
+*.pem
+*.key
+*.local

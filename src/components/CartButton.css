@@ -1,0 +1,51 @@
+/* Cart Button - Fixed Position */
+.cart-button {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 56px;
+  height: 56px;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 998;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: var(--transition);
+}
+
+.cart-button:hover {
+  background: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.cart-button__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 22px;
+  height: 22px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-white);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .cart-button {
+    bottom: 90px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+  }
+}
