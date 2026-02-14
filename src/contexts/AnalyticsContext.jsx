@@ -385,9 +385,22 @@ export const AnalyticsProvider = ({ children }) => {
     return filtered.sort((a, b) => b.timestamp - a.timestamp)
   }, [])
 
+  // Configuração padrão dos pixels
+  const DEFAULT_PIXELS = {
+    facebookPixelId: '26115865218048848',
+    googleAnalyticsId: '',
+    tiktokPixelId: ''
+  }
+
   // Obter configuração de pixels
   const getPixels = useCallback(() => {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.PIXELS) || '{}')
+    const stored = localStorage.getItem(STORAGE_KEYS.PIXELS)
+    if (!stored) {
+      // Salvar e retornar configuração padrão
+      localStorage.setItem(STORAGE_KEYS.PIXELS, JSON.stringify(DEFAULT_PIXELS))
+      return DEFAULT_PIXELS
+    }
+    return JSON.parse(stored)
   }, [])
 
   // Salvar configuração de pixels
