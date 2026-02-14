@@ -99,13 +99,18 @@ export default async function handler(req, res) {
 
     console.log('[PodPay] Sending to API:', JSON.stringify(payload))
 
+    // Autenticação Basic: publicKey:secretKey em base64
+    // Se não tiver publicKey, usa secretKey como ambos
+    const publicKey = process.env.PODPAY_PUBLIC_KEY || ''
+    const auth = 'Basic ' + Buffer.from(publicKey + ':' + secretKey).toString('base64')
+
     // Chamar API PodPay
     const response = await fetch('https://api.podpay.pro/v1/transactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Bearer ${secretKey}`
+        'Authorization': auth
       },
       body: JSON.stringify(payload)
     })

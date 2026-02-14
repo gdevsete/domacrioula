@@ -55,12 +55,16 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Autenticação Basic: publicKey:secretKey em base64
+    const publicKey = process.env.PODPAY_PUBLIC_KEY || ''
+    const auth = 'Basic ' + Buffer.from(publicKey + ':' + secretKey).toString('base64')
+
     // Chamar API PodPay
     const response = await fetch(`https://api.podpay.pro/v1/transactions/${id}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${secretKey}`
+        'Authorization': auth
       }
     })
 
