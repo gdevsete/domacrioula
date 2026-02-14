@@ -29,8 +29,5 @@
       ]
     }
   ],
-  "env": {
-    "PODPAY_SECRET_KEY": "@podpay_secret_key"
-  },
   "regions": ["gru1"]
 }
