@@ -130,6 +130,19 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_visits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 
+-- Remover políticas existentes (para evitar erro de duplicação)
+DROP POLICY IF EXISTS "Users can view own data" ON users;
+DROP POLICY IF EXISTS "Users can update own data" ON users;
+DROP POLICY IF EXISTS "Users can view own orders" ON orders;
+DROP POLICY IF EXISTS "Anyone can create orders" ON orders;
+DROP POLICY IF EXISTS "Service role full access users" ON users;
+DROP POLICY IF EXISTS "Service role full access orders" ON orders;
+DROP POLICY IF EXISTS "Service role full access settings" ON settings;
+DROP POLICY IF EXISTS "Service role full access products" ON products;
+DROP POLICY IF EXISTS "Service role full access analytics visits" ON analytics_visits;
+DROP POLICY IF EXISTS "Service role full access analytics events" ON analytics_events;
+DROP POLICY IF EXISTS "Service role full access admins" ON admins;
+
 -- Políticas de segurança para users
 CREATE POLICY "Users can view own data" ON users
   FOR SELECT USING (auth.uid() = id);
