@@ -108,6 +108,9 @@ export default async function handler(req, res) {
     if (loginError) {
       console.error('Auto-login error:', loginError)
       // Ainda retornar sucesso, usuário terá que fazer login manual
+      const savedAddresses = userData.addresses || []
+      const savedAddress = savedAddresses.length > 0 ? savedAddresses[0] : null
+      
       return res.status(201).json({
         success: true,
         user: {
@@ -116,13 +119,17 @@ export default async function handler(req, res) {
           name: userData.name,
           phone: userData.phone,
           document: userData.document,
-          address: null,
-          addresses: []
+          address: savedAddress,
+          addresses: savedAddresses
         },
         token: null,
         message: 'Cadastro realizado. Faça login para continuar.'
       })
     }
+
+    // Extrair endereço salvo para retornar
+    const savedAddresses = userData.addresses || []
+    const savedAddress = savedAddresses.length > 0 ? savedAddresses[0] : null
 
     return res.status(201).json({
       success: true,
@@ -132,8 +139,8 @@ export default async function handler(req, res) {
         name: userData.name,
         phone: userData.phone,
         document: userData.document,
-        address: null,
-        addresses: []
+        address: savedAddress,
+        addresses: savedAddresses
       },
       token: loginData.session.access_token
     })
