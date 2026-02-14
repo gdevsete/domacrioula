@@ -83,7 +83,12 @@ export default async function handler(req, res) {
       customer: {
         name: customer.name || 'Cliente',
         email: customer.email
-      }
+      },
+      items: items.map((item, index) => ({
+        title: item.title || item.name,
+        unitPrice: Math.round(item.unitPrice || item.price),
+        quantity: item.quantity || 1
+      }))
     }
 
     // Adicionar campos opcionais se existirem
@@ -91,8 +96,11 @@ export default async function handler(req, res) {
       payload.customer.phone = cleanPhone
     }
     if (cleanDocument) {
-      payload.customer.document = cleanDocument
-      payload.customer.documentType = cleanDocument.length === 14 ? 'cnpj' : 'cpf'
+      // document deve ser objeto com type e number
+      payload.customer.document = {
+        type: cleanDocument.length === 14 ? 'cnpj' : 'cpf',
+        number: cleanDocument
+      }
     }
 
     console.log('[PodPay] Sending to API:', JSON.stringify(payload))
