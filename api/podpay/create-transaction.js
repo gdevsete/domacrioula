@@ -128,7 +128,8 @@ export default async function handler(req, res) {
 
     const data = await response.json()
 
-    console.log('[PodPay] API Response:', response.status, JSON.stringify(data))
+    console.log('[PodPay] API Response:', response.status)
+    console.log('[PodPay] Full response data:', JSON.stringify(data, null, 2))
 
     if (!response.ok) {
       console.error('PodPay API error:', JSON.stringify(data))
@@ -139,19 +140,31 @@ export default async function handler(req, res) {
       })
     }
 
-    // Retornar dados da transação
+    // Log para debug dos campos PIX
+    console.log('[PodPay] PIX data:', JSON.stringify({
+      'data.pix': data.pix,
+      'data.pixQrCode': data.pixQrCode,
+      'data.qrCode': data.qrCode,
+      'data.qrcode': data.qrcode
+    }))
+
+    // Retornar dados da transação - tentar múltiplos caminhos possíveis
+    const pixData = data.pix || {}
     return res.status(200).json({
       success: true,
       transactionId: data.id,
       status: data.status,
       amount: data.amount,
       pix: {
-        qrCode: data.pix?.qrCode || data.pix?.qr_code || data.pix_qr_code || data.qrCode,
-        qrCodeImage: data.pix?.qrCodeImage || data.pix?.qr_code_url || data.pix_qr_code_url || data.qrCodeImage,
-        copyPaste: data.pix?.copyPaste || data.pix?.qr_code || data.pix_qr_code || data.qrCode,
-        expiresAt: data.pix?.expiresAt || data.pix?.expires_at || data.pix_expiration_date || data.expiresAt
+        qrCode: pixData.qrCode || pixData.qrcode || pixData.qr_code || data.pixQrCode || data.qrCode || data.qrcode,
+        qrCodeImage: pixData.qrCodeImage || pixData.qrcodeImage || pixData.qr_code_url || pixData.qrCodeUrl || data.pixQrCodeUrl,
+        copyPaste: pixData.copyPaste || pixData.copiaECola || pixData.qrCode || pixData.qrcode || data.pixQrCode || data.qrCode,
+        expiresAt: pixData.expiresAt || pixData.expirationDate || data.pixExpirationDate || data.expiresAt
       },
-      createdAt: data.createdAt || data.date_created || data.created_at
+      createdAt: data.createdAt || data.date_created || data.created_at,
+      // Incluir dados brutos para debug
+      rawPix: data.pix,
+      rawData: data
     })
 
   } catch (error) {
