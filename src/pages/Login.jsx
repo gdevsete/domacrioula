@@ -88,7 +88,7 @@ const Login = () => {
         <div className="login-branding">
           <div className="login-branding-content">
             <img 
-              src="/images/logo/logodoma.png" 
+              src="/images/logo/logo.png" 
               alt="Doma Crioula" 
               className="login-logo"
             />
