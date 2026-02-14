@@ -16,6 +16,11 @@ const CORS_HEADERS = {
 }
 
 export default async function handler(req, res) {
+  // Set CORS headers
+  Object.entries(CORS_HEADERS).forEach(([key, value]) => {
+    res.setHeader(key, value)
+  })
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).json({ ok: true })
@@ -55,18 +60,20 @@ export default async function handler(req, res) {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Basic ${Buffer.from(secretKey + ':').toString('base64')}`
+        'Authorization': `Bearer ${secretKey}`
       }
     })
 
     const data = await response.json()
 
+    console.log('[PodPay] Get Transaction Response:', response.status, JSON.stringify(data))
+
     if (!response.ok) {
       console.error('PodPay API error:', data)
       return res.status(response.status).json({
         error: 'Payment API error',
-        message: data.message || 'Failed to fetch transaction',
-        details: process.env.NODE_ENV === 'development' ? data : undefined
+        message: data.errors?.[0]?.message || data.message || 'Failed to fetch transaction',
+        details: data.errors || data
       })
     }
 
@@ -76,8 +83,8 @@ export default async function handler(req, res) {
       transactionId: data.id,
       status: data.status,
       amount: data.amount,
-      paidAt: data.paidAt || data.paid_at || null,
-      createdAt: data.createdAt || data.created_at
+      paidAt: data.paidAt || data.paid_at || data.date_updated || null,
+      createdAt: data.createdAt || data.created_at || data.date_created
     })
 
   } catch (error) {

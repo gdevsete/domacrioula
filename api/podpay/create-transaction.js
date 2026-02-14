@@ -16,6 +16,11 @@ const CORS_HEADERS = {
 }
 
 export default async function handler(req, res) {
+  // Set CORS headers
+  Object.entries(CORS_HEADERS).forEach(([key, value]) => {
+    res.setHeader(key, value)
+  })
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).json({ ok: true })
@@ -43,6 +48,8 @@ export default async function handler(req, res) {
   try {
     const { amount, customer, items, pix } = req.body
 
+    console.log('[PodPay] Received request:', JSON.stringify({ amount, customer: { ...customer, document: '***' }, items }))
+
     // Validações básicas
     if (!amount || amount <= 0) {
       return res.status(400).json({
@@ -65,27 +72,32 @@ export default async function handler(req, res) {
       })
     }
 
+    // Formatar documento (apenas números)
+    const cleanDocument = customer.document ? customer.document.replace(/\D/g, '') : null
+    const cleanPhone = customer.phone ? customer.phone.replace(/\D/g, '') : null
+
     // Payload para PodPay
     const payload = {
-      amount,
-      currency: 'BRL',
+      amount: Math.round(amount), // Valor em centavos
       paymentMethod: 'pix',
-      items: items.map(item => ({
-        title: item.title || item.name,
-        unitPrice: item.unitPrice || item.price,
-        quantity: item.quantity || 1,
-        tangible: item.tangible !== false
-      })),
       customer: {
-        email: customer.email,
         name: customer.name || 'Cliente',
-        phone: customer.phone || undefined,
-        document: customer.document || undefined
+        email: customer.email,
+        phone: cleanPhone || undefined,
+        document: cleanDocument || undefined,
+        documentType: cleanDocument && cleanDocument.length === 14 ? 'cnpj' : 'cpf'
       },
+      items: items.map((item, index) => ({
+        title: item.title || item.name,
+        unitPrice: Math.round(item.unitPrice || item.price),
+        quantity: item.quantity || 1
+      })),
       pix: {
-        expiresIn: pix?.expiresIn || 3600 // 1 hora padrão
+        expiresIn: pix?.expiresIn || 3600
       }
     }
+
+    console.log('[PodPay] Sending to API:', JSON.stringify(payload))
 
     // Chamar API PodPay
     const response = await fetch('https://api.podpay.pro/v1/transactions', {
@@ -93,35 +105,37 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Basic ${Buffer.from(secretKey + ':').toString('base64')}`
+        'Authorization': `Bearer ${secretKey}`
       },
       body: JSON.stringify(payload)
     })
 
     const data = await response.json()
 
+    console.log('[PodPay] API Response:', response.status, JSON.stringify(data))
+
     if (!response.ok) {
       console.error('PodPay API error:', data)
       return res.status(response.status).json({
         error: 'Payment API error',
-        message: data.message || 'Failed to create transaction',
-        details: process.env.NODE_ENV === 'development' ? data : undefined
+        message: data.errors?.[0]?.message || data.message || 'Failed to create transaction',
+        details: data.errors || data
       })
     }
 
-    // Retornar dados da transação (sem expor dados sensíveis)
+    // Retornar dados da transação
     return res.status(200).json({
       success: true,
       transactionId: data.id,
       status: data.status,
       amount: data.amount,
       pix: {
-        qrCode: data.pix?.qrCode || data.pix?.qr_code,
-        qrCodeImage: data.pix?.qrCodeImage || data.pix?.qr_code_url,
-        copyPaste: data.pix?.copyPaste || data.pix?.qr_code,
-        expiresAt: data.pix?.expiresAt || data.pix?.expires_at
+        qrCode: data.pix?.qrCode || data.pix?.qr_code || data.pix_qr_code || data.qrCode,
+        qrCodeImage: data.pix?.qrCodeImage || data.pix?.qr_code_url || data.pix_qr_code_url || data.qrCodeImage,
+        copyPaste: data.pix?.copyPaste || data.pix?.qr_code || data.pix_qr_code || data.qrCode,
+        expiresAt: data.pix?.expiresAt || data.pix?.expires_at || data.pix_expiration_date || data.expiresAt
       },
-      createdAt: data.createdAt || data.created_at
+      createdAt: data.createdAt || data.date_created || data.created_at
     })
 
   } catch (error) {
