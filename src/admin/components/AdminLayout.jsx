@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../contexts/AdminContext'
+import '../styles/AdminGlobal.css'
 import './AdminLayout.css'
 
 const AdminLayout = ({ children }) => {

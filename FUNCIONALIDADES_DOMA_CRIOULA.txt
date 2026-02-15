@@ -1,0 +1,717 @@
+================================================================================
+             FUNCIONALIDADES DO SISTEMA DOMA CRIOULA
+             Data: 15 de Fevereiro de 2026
+================================================================================
+
+================================================================================
+1. ÁREA DO CLIENTE (LOJA)
+================================================================================
+
+1.1 NAVEGAÇÃO E INTERFACE
+--------------------------------------------------------------------------------
+[✅] Header Responsivo
+    - Menu de navegação com dropdown de produtos
+    - Menu hamburger para mobile
+    - Efeito de scroll (header fixo)
+    - Arquivo: src/components/Header.jsx
+
+[✅] Footer
+    - Informações de contato
+    - Links rápidos
+    - Redes sociais
+    - Arquivo: src/components/Footer.jsx
+
+[✅] ScrollToHash
+    - Navegação suave para seções da página
+    - Arquivo: src/components/ScrollToHash.jsx
+
+[✅] WhatsApp Button
+    - Botão flutuante para contato via WhatsApp
+    - Arquivo: src/components/WhatsAppButton.jsx
+
+1.2 PÁGINAS DE PRODUTOS
+--------------------------------------------------------------------------------
+[✅] Home Page
+    - Landing page com Hero, categorias, produtos, depoimentos
+    - Arquivo: src/pages/Home.jsx
+
+[✅] Caixas Térmicas
+    - Catálogo completo de 10 tamanhos (30L a 500L)
+    - Especificações detalhadas
+    - Galeria de imagens com lightbox
+    - Arquivo: src/components/CaixasTermicas.jsx
+    - Arquivo: src/pages/CaixasTermicasPage.jsx
+
+[✅] Facas Personalizadas
+    - Catálogo por categorias (Rock, Temáticas)
+    - Detalhes e especificações
+    - Arquivo: src/components/FacasPersonalizadas.jsx
+    - Arquivo: src/pages/FacasPage.jsx
+
+[✅] Kit Churrasco
+    - Página de kits de churrasco
+    - Arquivo: src/pages/KitChurrascoPage.jsx
+
+[✅] Acessórios Churrasco
+    - Acessórios variados para churrasco
+    - Arquivo: src/pages/AcessoriosChurrascoPage.jsx
+
+[✅] Hero Section
+    - Banner principal com CTA
+    - Arquivo: src/components/Hero.jsx
+
+[✅] Categorias de Produtos
+    - Grid de categorias clicáveis
+    - Arquivo: src/components/ProductCategories.jsx
+
+[✅] Sobre a Empresa
+    - Seção about com história da empresa
+    - Arquivo: src/components/About.jsx
+
+[✅] Por que Escolher
+    - Seção de diferenciais/benefícios
+    - Arquivo: src/components/WhyChooseUs.jsx
+
+[✅] Contato
+    - Formulário e informações de contato
+    - Arquivo: src/components/Contact.jsx
+
+1.3 CARRINHO DE COMPRAS
+--------------------------------------------------------------------------------
+[✅] Carrinho Lateral (Sidebar)
+    - Carrinho slide-in com lista de produtos
+    - Controle de quantidades
+    - Arquivo: src/components/Cart.jsx
+
+[✅] Botão do Carrinho
+    - Ícone flutuante com contador de itens
+    - Arquivo: src/components/CartButton.jsx
+
+[✅] Adicionar ao Carrinho
+    - Adiciona produtos com tracking de evento do Meta Pixel
+    - Arquivo: src/contexts/CartContext.jsx
+
+[✅] Atualizar Quantidade
+    - Incrementar/decrementar quantidade
+    - Arquivo: src/contexts/CartContext.jsx
+
+[✅] Remover Item
+    - Remove item do carrinho
+    - Arquivo: src/contexts/CartContext.jsx
+
+[✅] Desconto Progressivo
+    - 20% de desconto ao comprar 3+ caixas térmicas
+    - Arquivo: src/contexts/CartContext.jsx
+
+[✅] Cálculo de Economia Potencial
+    - Mostra quanto economizaria ao adicionar mais caixas
+    - Arquivo: src/contexts/CartContext.jsx
+
+1.4 CHECKOUT E PAGAMENTO
+--------------------------------------------------------------------------------
+[✅] Modal de Checkout
+    - Modal com formulário completo de dados
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Validação de CPF/CNPJ
+    - Validação completa de documentos brasileiros
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Busca de CEP (ViaCEP)
+    - Auto-preenchimento de endereço pelo CEP
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Pagamento PIX
+    - Integração com PodPay para gerar QR Code PIX
+    - Arquivo: src/services/podpayService.js
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] QR Code PIX
+    - Exibição do QR Code para pagamento
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Código PIX Copia e Cola
+    - Código PIX com botão de copiar
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Verificação de Pagamento
+    - Polling automático do status do pagamento
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Depoimentos no Checkout
+    - Carrossel de depoimentos de clientes para aumentar conversão
+    - Arquivo: src/components/Checkout.jsx
+
+[✅] Criação de Pedido
+    - Salva pedido no banco após pagamento confirmado
+    - Arquivo: api/orders/index.js
+
+1.5 AUTENTICAÇÃO DE CLIENTES
+--------------------------------------------------------------------------------
+[✅] Login
+    - Autenticação com email/senha via Supabase Auth
+    - Arquivo: src/pages/Login.jsx
+    - API: api/auth/login.js
+
+[✅] Cadastro
+    - Registro com validações completas
+    - Email de boas-vindas automático
+    - Arquivo: src/pages/Register.jsx
+    - API: api/auth/register.js
+
+[✅] Esqueci a Senha
+    - Envio de código de 6 dígitos por email
+    - Arquivo: src/pages/ForgotPassword.jsx
+    - API: api/auth/forgot-password.js
+
+[✅] Reset de Senha
+    - Redefinição de senha com código
+    - API: api/auth/reset-password.js
+
+[✅] Persistência de Sessão
+    - Token JWT armazenado no localStorage
+    - Arquivo: src/contexts/AuthContext.jsx
+
+[✅] Auto-login
+    - Carrega usuário automaticamente se token válido
+    - Arquivo: src/contexts/AuthContext.jsx
+
+1.6 PAINEL DO CLIENTE (MINHA CONTA)
+--------------------------------------------------------------------------------
+[✅] Painel Minha Conta
+    - Dashboard do cliente com tabs organizadas
+    - Arquivo: src/pages/UserPanel.jsx
+
+[✅] Meus Pedidos
+    - Lista de pedidos com status e detalhes
+    - Arquivo: src/pages/UserPanel.jsx
+
+[✅] Detalhes do Pedido
+    - Modal com itens, valores, status
+    - Arquivo: src/pages/UserPanel.jsx
+
+[✅] Editar Perfil
+    - Atualização de nome, telefone, documento
+    - Arquivo: src/pages/UserPanel.jsx
+
+[✅] Editar Endereço
+    - Atualização de endereço com busca CEP
+    - Arquivo: src/pages/UserPanel.jsx
+
+[✅] Logout
+    - Encerramento de sessão
+    - Arquivo: src/pages/UserPanel.jsx
+
+1.7 RASTREAMENTO DE PEDIDOS (CLIENTE)
+--------------------------------------------------------------------------------
+[✅] Página de Rastreamento
+    - Busca pública de pedidos por código
+    - Arquivo: src/pages/TrackOrder.jsx
+
+[✅] Timeline de Status
+    - Visualização do histórico de movimentação
+    - Arquivo: src/pages/TrackOrder.jsx
+
+[✅] 8 Status Diferentes
+    - posted (Objeto Postado)
+    - in_transit (Em Trânsito)
+    - hub (Em Centro de Distribuição)
+    - out_for_delivery (Saiu para Entrega)
+    - delivery_attempt (Tentativa de Entrega)
+    - awaiting_pickup (Aguardando Retirada)
+    - delivered (Entregue)
+    - returned (Devolvido)
+
+[✅] Copiar Código de Rastreio
+    - Botão para copiar código
+    - Arquivo: src/pages/TrackOrder.jsx
+
+================================================================================
+2. ÁREA ADMINISTRATIVA (ADMIN)
+================================================================================
+
+2.1 AUTENTICAÇÃO ADMIN
+--------------------------------------------------------------------------------
+[✅] Login Admin
+    - Tela de login exclusiva para administradores
+    - Arquivo: src/admin/pages/AdminLogin.jsx
+
+[✅] Rota Protegida
+    - Guard que verifica autenticação admin
+    - Arquivo: src/admin/components/ProtectedAdminRoute.jsx
+
+[✅] Sessão Admin
+    - Token JWT com expiração de 24 horas
+    - Arquivo: src/admin/contexts/AdminContext.jsx
+
+[✅] Layout Admin
+    - Sidebar + área de conteúdo responsivo
+    - Arquivo: src/admin/components/AdminLayout.jsx
+
+2.2 DASHBOARD
+--------------------------------------------------------------------------------
+[✅] Cards de Estatísticas
+    - Faturamento total
+    - Total de pedidos
+    - Clientes cadastrados
+    - Taxa de conversão
+    - Arquivo: src/admin/pages/Dashboard.jsx
+
+[✅] Pedidos Recentes
+    - Lista dos últimos 5 pedidos
+    - Arquivo: src/admin/pages/Dashboard.jsx
+
+[✅] Auto-atualização
+    - Refresh automático a cada 30 segundos
+    - Arquivo: src/admin/pages/Dashboard.jsx
+
+2.3 GESTÃO DE PEDIDOS
+--------------------------------------------------------------------------------
+[✅] Lista de Pedidos
+    - Tabela com todos os pedidos
+    - Arquivo: src/admin/pages/Orders.jsx
+
+[✅] Filtros de Pedidos
+    - Por status
+    - Busca por nome/código
+    - Por data
+    - Arquivo: src/admin/pages/Orders.jsx
+
+[✅] Detalhes do Pedido
+    - Modal com informações completas
+    - Arquivo: src/admin/pages/Orders.jsx
+
+[✅] Alterar Status do Pedido
+    - 9 status diferentes:
+      * pending (Pendente)
+      * paid (Pago)
+      * processing (Processando)
+      * shipped (Enviado)
+      * delivered (Entregue)
+      * cancelled (Cancelado)
+      * refunded (Reembolsado)
+      * on_hold (Em espera)
+      * failed (Falhou)
+    - Arquivo: src/admin/pages/Orders.jsx
+
+2.4 SISTEMA DE RASTREAMENTO (ADMIN)
+--------------------------------------------------------------------------------
+[✅] Lista de Rastreios
+    - Todos os códigos de rastreamento
+    - Arquivo: src/admin/pages/Tracking.jsx
+
+[✅] Criar Rastreio
+    - Gera código único automaticamente (DC + 8 chars alfanuméricos)
+    - Origem fixa: Sapiranga - RS
+    - Arquivo: src/admin/pages/Tracking.jsx
+
+[✅] Atualizar Status
+    - Adiciona movimentação ao histórico
+    - Arquivo: src/admin/pages/Tracking.jsx
+
+[✅] Histórico de Movimentações
+    - Timeline completa com data, local e descrição
+    - Arquivo: src/admin/pages/Tracking.jsx
+
+[✅] Deletar Rastreio
+    - Remove rastreio do sistema
+    - Arquivo: src/admin/pages/Tracking.jsx
+
+[✅] Estatísticas de Rastreamento
+    - Total de rastreios
+    - Em trânsito
+    - Entregues
+    - Aguardando
+    - Arquivo: src/admin/pages/Tracking.jsx
+
+2.5 GESTÃO DE PRODUTOS
+--------------------------------------------------------------------------------
+[✅] Lista de Produtos
+    - Catálogo completo com busca
+    - Arquivo: src/admin/pages/Products.jsx
+
+[✅] Criar Produto
+    - Modal com formulário completo
+    - Arquivo: src/admin/pages/Products.jsx
+
+[✅] Editar Produto
+    - Alterar preço, descrição, estoque
+    - Arquivo: src/admin/pages/Products.jsx
+
+[✅] Categorias de Produtos
+    - 7 categorias:
+      * caixa_termica
+      * faca
+      * kit_churrasco
+      * acessorio
+      * tabua
+      * espeto
+      * outros
+    - Arquivo: src/admin/pages/Products.jsx
+
+[✅] Produto Destaque
+    - Flag para destacar na home
+    - Arquivo: src/admin/pages/Products.jsx
+
+2.6 GESTÃO DE CLIENTES
+--------------------------------------------------------------------------------
+[✅] Lista de Clientes
+    - Todos os clientes cadastrados
+    - Arquivo: src/admin/pages/Customers.jsx
+
+[✅] Busca de Clientes
+    - Pesquisa por nome ou email
+    - Arquivo: src/admin/pages/Customers.jsx
+
+[✅] Detalhes do Cliente
+    - Dados completos do cliente
+    - Histórico de pedidos
+    - Arquivo: src/admin/pages/Customers.jsx
+
+[✅] Estatísticas por Cliente
+    - Total de pedidos realizados
+    - Total gasto na loja
+    - Arquivo: src/admin/pages/Customers.jsx
+
+2.7 RELATÓRIOS
+--------------------------------------------------------------------------------
+[✅] Relatório de Vendas
+    - Análise por período:
+      * Últimos 7 dias
+      * Últimos 30 dias
+      * Últimos 90 dias
+      * Ano atual
+      * Todo o período
+    - Arquivo: src/admin/pages/Reports.jsx
+
+[✅] Receita por Dia
+    - Gráfico dos últimos 7 dias
+    - Arquivo: src/admin/pages/Reports.jsx
+
+[✅] Top Produtos
+    - Ranking de produtos mais vendidos
+    - Arquivo: src/admin/pages/Reports.jsx
+
+[✅] Pedidos por Status
+    - Distribuição de status em formato visual
+    - Arquivo: src/admin/pages/Reports.jsx
+
+[✅] Métodos de Pagamento
+    - Análise de formas de pagamento utilizadas
+    - Arquivo: src/admin/pages/Reports.jsx
+
+2.8 ANALYTICS
+--------------------------------------------------------------------------------
+[✅] Visão Geral
+    - Pageviews
+    - Visitantes únicos
+    - Sessões
+    - Arquivo: src/admin/pages/Analytics.jsx
+
+[✅] Análise de Tráfego
+    - Fontes de tráfego
+    - Dispositivos (desktop, mobile, tablet)
+    - Navegadores
+    - Arquivo: src/admin/pages/Analytics.jsx
+
+[✅] Insights de Anúncios
+    - Recomendações para otimização de campanhas
+    - Arquivo: src/admin/pages/Analytics.jsx
+
+[✅] Configuração de Pixels
+    - Facebook Pixel
+    - Google Analytics
+    - TikTok Pixel
+    - Arquivo: src/admin/pages/Analytics.jsx
+
+[✅] Lista de Visitantes
+    - Detalhes de cada visita
+    - Arquivo: src/admin/pages/Analytics.jsx
+
+2.9 CONFIGURAÇÕES
+--------------------------------------------------------------------------------
+[✅] Configurações Gerais
+    - Nome da loja
+    - Informações de contato
+    - Arquivo: src/admin/pages/Settings.jsx
+
+[✅] Configurações de Frete
+    - Valores de entrega
+    - Regras de frete grátis
+    - Arquivo: src/admin/pages/Settings.jsx
+
+[✅] Configurações de Pagamento
+    - Métodos aceitos
+    - Arquivo: src/admin/pages/Settings.jsx
+
+[✅] Notificações
+    - Configurações de alertas e notificações
+    - Arquivo: src/admin/pages/Settings.jsx
+
+================================================================================
+3. API/BACKEND (Vercel Serverless Functions)
+================================================================================
+
+3.1 AUTENTICAÇÃO
+--------------------------------------------------------------------------------
+[✅] POST /api/auth/register
+    - Cadastro de usuário
+    - Email de boas-vindas automático
+    - Arquivo: api/auth/register.js
+
+[✅] POST /api/auth/login
+    - Login com Supabase Auth
+    - Retorna token JWT
+    - Arquivo: api/auth/login.js
+
+[✅] GET /api/auth/me
+    - Dados do usuário logado
+    - Arquivo: api/auth/me.js
+
+[✅] POST /api/auth/forgot-password
+    - Gera código de reset de 6 dígitos
+    - Envia por email
+    - Arquivo: api/auth/forgot-password.js
+
+[✅] POST /api/auth/reset-password
+    - Redefine senha com código
+    - Arquivo: api/auth/reset-password.js
+
+3.2 PEDIDOS
+--------------------------------------------------------------------------------
+[✅] GET /api/orders
+    - Lista pedidos do usuário logado
+    - Arquivo: api/orders/index.js
+
+[✅] POST /api/orders
+    - Cria novo pedido
+    - Arquivo: api/orders/index.js
+
+3.3 RASTREAMENTO
+--------------------------------------------------------------------------------
+[✅] GET /api/tracking?code=X
+    - Busca rastreio público por código
+    - Arquivo: api/tracking/index.js
+
+[✅] GET /api/tracking?all=true
+    - Lista todos os rastreios (admin)
+    - Requer autenticação admin
+    - Arquivo: api/tracking/index.js
+
+[✅] POST /api/tracking
+    - Cria novo rastreio (admin)
+    - Gera código automaticamente
+    - Arquivo: api/tracking/index.js
+
+[✅] PUT /api/tracking
+    - Atualiza status do rastreio (admin)
+    - Adiciona ao histórico
+    - Arquivo: api/tracking/index.js
+
+[✅] DELETE /api/tracking?id=X
+    - Remove rastreio (admin)
+    - Arquivo: api/tracking/index.js
+
+3.4 PAGAMENTOS (PODPAY)
+--------------------------------------------------------------------------------
+[✅] POST /api/podpay/create-transaction
+    - Cria transação PIX
+    - Retorna QR Code e código copia/cola
+    - Arquivo: api/podpay/create-transaction.js
+
+[✅] GET /api/podpay/get-transaction
+    - Consulta status do pagamento
+    - Arquivo: api/podpay/get-transaction.js
+
+3.5 EMAIL
+--------------------------------------------------------------------------------
+[✅] POST /api/email/send
+    - Envia emails via Resend
+    - Templates HTML responsivos
+    - Arquivo: api/email/send.js
+
+3.6 META CONVERSIONS API
+--------------------------------------------------------------------------------
+[✅] POST /api/meta/event
+    - Envia eventos ao Facebook Conversions API
+    - Bypass de bloqueadores de anúncios
+    - Arquivo: api/meta/event.js
+
+================================================================================
+4. INTEGRAÇÕES EXTERNAS
+================================================================================
+
+4.1 SUPABASE
+--------------------------------------------------------------------------------
+[✅] Autenticação (Auth)
+    - Autenticação de usuários com email/senha
+
+[✅] Banco de Dados (PostgreSQL)
+    - Tabelas: users, orders, admins, products, settings, trackings, etc.
+
+[✅] Row Level Security (RLS)
+    - Políticas de segurança por usuário/role
+
+4.2 PODPAY (PAGAMENTO PIX)
+--------------------------------------------------------------------------------
+[✅] Criação de PIX
+    - Gera QR Code e código copia/cola
+
+[✅] Consulta de Status
+    - Polling para verificar pagamento
+
+[⚠️] Webhooks (NÃO IMPLEMENTADO)
+    - Notificação automática de pagamento confirmado
+
+4.3 META (FACEBOOK)
+--------------------------------------------------------------------------------
+[✅] Pixel Frontend
+    - Tracking de eventos no navegador
+
+[✅] Conversions API (CAPI)
+    - Eventos server-side para bypass de bloqueadores
+
+[✅] Eventos Suportados
+    - PageView
+    - ViewContent
+    - AddToCart
+    - InitiateCheckout
+    - Purchase
+
+[✅] Hashing SHA256
+    - Dados do usuário hashados conforme requisitos Meta
+
+4.4 RESEND (EMAIL)
+--------------------------------------------------------------------------------
+[✅] Email de Boas-vindas
+    - Enviado automaticamente após cadastro
+
+[✅] Email de Reset de Senha
+    - Código de 6 dígitos para recuperação
+
+[✅] Templates HTML
+    - Emails responsivos e estilizados
+
+4.5 VIACEP
+--------------------------------------------------------------------------------
+[✅] Auto-preenchimento de Endereço
+    - Busca rua, bairro, cidade, estado pelo CEP
+
+4.6 IPAPI
+--------------------------------------------------------------------------------
+[✅] Geolocalização
+    - Identifica cidade/região do visitante
+    - Usado no analytics
+
+================================================================================
+5. BANCO DE DADOS (SCHEMA SUPABASE)
+================================================================================
+
+5.1 TABELAS PRINCIPAIS
+--------------------------------------------------------------------------------
+[✅] users
+    - Clientes cadastrados
+    - Campos: id, email, name, phone, document, address, etc.
+
+[✅] admins
+    - Administradores do sistema
+    - Campos: id, email, name, role, etc.
+
+[✅] orders
+    - Pedidos realizados
+    - Campos: id, user_id, items, total, status, payment_method, etc.
+
+[✅] products
+    - Produtos do catálogo
+    - Campos: id, name, price, description, category, images, featured, etc.
+
+[✅] settings
+    - Configurações da loja
+    - Campos: id, key, value
+
+[✅] trackings
+    - Rastreamento de pedidos
+    - Campos: id, tracking_code, order_number, customer_name, history, etc.
+    - Arquivo SQL: sql/create_trackings_table.sql
+
+[✅] password_reset_codes
+    - Códigos de recuperação de senha
+    - Campos: id, email, code, expires_at
+
+[✅] analytics_visits
+    - Visitas do site
+    - Campos: id, session_id, page, referrer, device, etc.
+
+[✅] analytics_events
+    - Eventos de analytics
+    - Campos: id, session_id, event_name, event_data, etc.
+
+================================================================================
+6. RESUMO GERAL
+================================================================================
+
+CATEGORIA                          | TOTAL DE FUNCIONALIDADES
+-----------------------------------|---------------------------
+Área do Cliente (Loja)             | 35+ funcionalidades
+Área Administrativa                | 30+ funcionalidades
+API/Backend                        | 14 endpoints
+Integrações Externas               | 6 serviços
+Tabelas no Banco de Dados          | 9 tabelas
+
+================================================================================
+STATUS GERAL: ✅ SISTEMA COMPLETO E FUNCIONAL
+================================================================================
+
+O sistema é um e-commerce completo de:
+- Caixas térmicas personalizadas (10 tamanhos: 30L a 500L)
+- Facas personalizadas (categorias Rock e Temáticas)
+- Kits e acessórios para churrasco
+
+Principais features:
+✅ Pagamento via PIX (PodPay)
+✅ Sistema de rastreamento de pedidos
+✅ Painel administrativo completo
+✅ Área do cliente (minha conta)
+✅ Analytics e relatórios
+✅ Integração com Meta Ads (Facebook)
+✅ Emails transacionais (Resend)
+✅ Desconto progressivo (20% em 3+ caixas)
+✅ 100% responsivo (mobile-first)
+
+================================================================================
+FUNCIONALIDADES QUE PODEM SER ADICIONADAS (SUGESTÕES)
+================================================================================
+
+[❌] Webhook PodPay
+    - Notificação automática de pagamento (atualmente usa polling)
+
+[❌] Notificação por Email de Status do Pedido
+    - Email quando pedido é enviado, em trânsito, entregue
+
+[❌] Cupons de Desconto
+    - Sistema de cupons promocionais
+
+[❌] Avaliações de Produtos
+    - Clientes podem avaliar produtos comprados
+
+[❌] Lista de Desejos (Wishlist)
+    - Salvar produtos para comprar depois
+
+[❌] Notificação Push
+    - Alertas no navegador
+
+[❌] Chat Online
+    - Suporte em tempo real
+
+[❌] Múltiplos Métodos de Pagamento
+    - Cartão de crédito, boleto
+
+[❌] Cálculo de Frete Automático
+    - Integração com Correios/Melhor Envio
+
+[❌] Exportação de Relatórios (PDF/Excel)
+    - Download de relatórios
+
+================================================================================
+                 FIM DO DOCUMENTO
+================================================================================

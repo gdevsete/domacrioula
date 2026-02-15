@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 
 const AdminContext = createContext(null)
 
@@ -43,11 +43,59 @@ const validateAdminToken = (token) => {
   }
 }
 
+// Sistema de som de notificação usando Web Audio API
+const playNotificationSound = (type = 'default') => {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+    
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+    
+    // Configurar som baseado no tipo
+    if (type === 'sale') {
+      // Som de venda: mais alegre (duas notas ascendentes)
+      oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime) // C5
+      oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1) // E5
+      oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2) // G5
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.4)
+    } else if (type === 'customer') {
+      // Som de novo cliente: simples e amigável
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime) // A4
+      oscillator.frequency.setValueAtTime(554.37, audioContext.currentTime + 0.15) // C#5
+      gainNode.gain.setValueAtTime(0.25, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.3)
+    } else {
+      // Som padrão
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime)
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.2)
+    }
+    
+    oscillator.type = 'sine'
+  } catch (error) {
+    console.log('Som de notificação não disponível:', error)
+  }
+}
+
 export const AdminProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null)
   const [loading, setLoading] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [notifications, setNotifications] = useState([])
+  
+  // Refs para monitorar novos pedidos/clientes
+  const lastOrderCountRef = useRef(0)
+  const lastCustomerCountRef = useRef(0)
+  const isFirstLoadRef = useRef(true)
 
   // Carregar admin do localStorage
   useEffect(() => {
@@ -74,6 +122,87 @@ export const AdminProvider = ({ children }) => {
 
     loadAdmin()
   }, [])
+
+  // Monitorar novos pedidos e clientes em tempo real
+  useEffect(() => {
+    if (!admin) return // Só monitora se admin estiver logado
+    
+    const checkForNewData = () => {
+      try {
+        const ordersDB = JSON.parse(localStorage.getItem('doma_crioula_orders_db') || '[]')
+        const usersDB = JSON.parse(localStorage.getItem('doma_crioula_users_db') || '[]')
+        
+        const currentOrderCount = ordersDB.length
+        const currentCustomerCount = usersDB.length
+        
+        // Na primeira carga, apenas salvar os valores
+        if (isFirstLoadRef.current) {
+          lastOrderCountRef.current = currentOrderCount
+          lastCustomerCountRef.current = currentCustomerCount
+          isFirstLoadRef.current = false
+          return
+        }
+        
+        // Verificar novos pedidos
+        if (currentOrderCount > lastOrderCountRef.current) {
+          const newOrdersCount = currentOrderCount - lastOrderCountRef.current
+          const latestOrder = ordersDB[ordersDB.length - 1]
+          
+          setNotifications(prev => [...prev, {
+            id: Date.now().toString(36) + '_sale',
+            type: 'success',
+            title: `🎉 Nova Venda!`,
+            message: latestOrder?.customer?.name 
+              ? `${latestOrder.customer.name} fez um pedido` 
+              : `${newOrdersCount} novo(s) pedido(s) recebido(s)`,
+            timestamp: Date.now()
+          }])
+          
+          playNotificationSound('sale')
+          lastOrderCountRef.current = currentOrderCount
+          
+          // Auto-remover após 8 segundos
+          setTimeout(() => {
+            setNotifications(prev => prev.filter(n => !n.id.endsWith('_sale') || Date.now() - n.timestamp > 7000))
+          }, 8000)
+        }
+        
+        // Verificar novos clientes
+        if (currentCustomerCount > lastCustomerCountRef.current) {
+          const newCustomersCount = currentCustomerCount - lastCustomerCountRef.current
+          const latestCustomer = usersDB[usersDB.length - 1]
+          
+          setNotifications(prev => [...prev, {
+            id: Date.now().toString(36) + '_customer',
+            type: 'info',
+            title: `👤 Novo Cliente!`,
+            message: latestCustomer?.name 
+              ? `${latestCustomer.name} se cadastrou` 
+              : `${newCustomersCount} novo(s) cliente(s) cadastrado(s)`,
+            timestamp: Date.now()
+          }])
+          
+          playNotificationSound('customer')
+          lastCustomerCountRef.current = currentCustomerCount
+          
+          // Auto-remover após 8 segundos
+          setTimeout(() => {
+            setNotifications(prev => prev.filter(n => !n.id.endsWith('_customer') || Date.now() - n.timestamp > 7000))
+          }, 8000)
+        }
+      } catch (error) {
+        console.error('Erro ao verificar novos dados:', error)
+      }
+    }
+    
+    // Verificar a cada 10 segundos
+    const interval = setInterval(checkForNewData, 10000)
+    
+    // Verificar imediatamente na primeira vez
+    checkForNewData()
+    
+    return () => clearInterval(interval)
+  }, [admin])
 
   // Login do admin
   const loginAdmin = useCallback(async (email, password) => {
@@ -121,6 +250,11 @@ export const AdminProvider = ({ children }) => {
   const addNotification = useCallback((notification) => {
     const id = Date.now().toString(36)
     setNotifications(prev => [...prev, { ...notification, id, timestamp: Date.now() }])
+    
+    // Tocar som de notificação baseado no tipo
+    if (notification.sound !== false) {
+      playNotificationSound(notification.soundType || 'default')
+    }
     
     // Auto-remover após 5 segundos
     setTimeout(() => {

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, User, Phone, FileText, MapPin, ArrowRight, ArrowLeft, CheckCircle, Building2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useAnalytics } from '../contexts/AnalyticsContext'
 import './Register.css'
 
 // Validador de CPF
@@ -119,6 +120,7 @@ const formatCEP = (value) => {
 const Register = () => {
   const navigate = useNavigate()
   const { register, isAuthenticated, loading: authLoading } = useAuth()
+  const { trackEvent } = useAnalytics()
   
   const [step, setStep] = useState(1) // 1: dados pessoais, 2: endereço
   const [docType, setDocType] = useState('cpf')
@@ -293,6 +295,14 @@ const Register = () => {
         streetNumber: formData.streetNumber,
         complement: formData.complement,
         neighborhood: formData.neighborhood,
+        city: formData.city,
+        state: formData.state
+      })
+      
+      // Disparar evento Lead para o Pixel
+      trackEvent('Lead', {
+        content_name: 'Cadastro de Cliente',
+        content_category: 'registration',
         city: formData.city,
         state: formData.state
       })
