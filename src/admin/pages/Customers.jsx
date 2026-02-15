@@ -14,11 +14,17 @@ const Customers = () => {
     loadCustomers()
   }, [searchTerm])
 
-  const loadCustomers = () => {
+  const loadCustomers = async () => {
     setLoading(true)
-    const data = getCustomers({ search: searchTerm })
-    setCustomers(data)
-    setLoading(false)
+    try {
+      const data = await getCustomers({ search: searchTerm })
+      setCustomers(data)
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error)
+      setCustomers([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const formatDate = (dateString) => {

@@ -651,20 +651,21 @@
   width: 210mm;
   min-height: 297mm;
   background: white;
-  padding: 20mm 18mm;
+  padding: 20mm 20mm;
   box-shadow: 0 5px 30px rgba(0,0,0,0.2);
   font-family: 'Arial', 'Helvetica', sans-serif;
   color: #1a1a1a;
   position: relative;
-  transform-origin: top left;
+  transform-origin: top center;
   transform: scale(0.65);
-  margin-bottom: -35%;
+  margin: 0 auto -35%;
 }
 
 /* Quote Header */
 .quote-doc-header {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 20px;
   padding-bottom: 15px;
   border-bottom: 3px solid #16a34a;
@@ -737,7 +738,7 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 15px;
+  padding: 15px 20px;
   margin-bottom: 20px;
 }
 
@@ -745,31 +746,38 @@
   font-size: 12px;
   font-weight: 700;
   color: #16a34a;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .customer-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px 30px;
 }
 
 .customer-item {
   display: flex;
   gap: 8px;
+  align-items: baseline;
 }
 
 .customer-item .label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #666;
+  white-space: nowrap;
+  min-width: 70px;
 }
 
 .customer-item .value {
   font-size: 11px;
   color: #1a1a1a;
+  word-break: break-word;
 }
 
 /* Items Table */
@@ -791,9 +799,13 @@
   font-size: 11px;
   font-weight: 700;
   color: white;
-  text-align: left;
+  text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.quote-items-table th.col-desc {
+  text-align: left;
 }
 
 .quote-items-table tbody tr {
@@ -808,25 +820,27 @@
   padding: 10px 12px;
   font-size: 11px;
   color: #1a1a1a;
+  vertical-align: middle;
 }
 
 .quote-items-table .col-item {
-  width: 50px;
+  width: 40px;
   text-align: center;
 }
 
 .quote-items-table .col-desc {
-  min-width: 200px;
+  min-width: 180px;
+  text-align: left;
 }
 
 .quote-items-table .col-qty {
-  width: 60px;
+  width: 50px;
   text-align: center;
 }
 
 .quote-items-table .col-unit,
 .quote-items-table .col-total {
-  width: 100px;
+  width: 90px;
   text-align: right;
 }
 
@@ -920,7 +934,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  padding: 15px;
+  padding: 15px 20px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -931,6 +945,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: center;
 }
 
 .quote-conditions .label {

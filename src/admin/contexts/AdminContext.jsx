@@ -387,28 +387,32 @@ export const AdminProvider = ({ children }) => {
     }
   }, [admin, addNotification])
 
-  // Obter clientes
-  const getCustomers = useCallback((filters = {}) => {
+  // Obter clientes do servidor
+  const getCustomers = useCallback(async (filters = {}) => {
     try {
-      let users = JSON.parse(localStorage.getItem('doma_crioula_users_db') || '[]')
-      
+      const token = localStorage.getItem(ADMIN_STORAGE_KEYS.ADMIN_TOKEN)
+      if (!token) return []
+
+      const params = new URLSearchParams()
       if (filters.search) {
-        const search = filters.search.toLowerCase()
-        users = users.filter(u => 
-          u.name?.toLowerCase().includes(search) ||
-          u.email?.toLowerCase().includes(search) ||
-          u.phone?.includes(search)
-        )
+        params.append('search', filters.search)
       }
 
-      // Ordenar por data de cadastro (mais recente primeiro)
-      users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      const response = await fetch(`/api/auth/customers?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
 
-      return users.map(u => ({
-        ...u,
-        password: undefined // Não expor senha
-      }))
-    } catch {
+      if (!response.ok) {
+        console.error('Erro ao buscar clientes')
+        return []
+      }
+
+      const data = await response.json()
+      return data.customers || []
+    } catch (error) {
+      console.error('Erro ao buscar clientes:', error)
       return []
     }
   }, [])
