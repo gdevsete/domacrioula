@@ -20,10 +20,16 @@ const AnalyticsTracker = () => {
     // Pequeno delay para garantir que o título da página foi atualizado
     const timeoutId = setTimeout(() => {
       trackPageView(location.pathname)
+      
+      // Disparar PageView no Facebook Pixel também
+      trackEvent('PageView', {
+        page_path: location.pathname,
+        page_title: document.title
+      })
     }, 100)
     
     return () => clearTimeout(timeoutId)
-  }, [location.pathname, trackPageView])
+  }, [location.pathname, trackPageView, trackEvent])
 
   // Rastrear tempo na página
   useEffect(() => {

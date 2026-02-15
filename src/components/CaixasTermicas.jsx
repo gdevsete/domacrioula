@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X, Thermometer, Ruler, Package, Check, Box, Weight, Layers, Settings, Wrench, Sparkles, ShoppingCart, Plus } from 'lucide-react'
 import { useCart } from '../contexts/CartContext'
+import { useAnalytics } from '../contexts/AnalyticsContext'
 import { formatCurrency } from '../services/podpayService'
 import './CaixasTermicas.css'
 
@@ -9,6 +10,7 @@ const CaixasTermicas = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const { addItem, cartTotals, potentialSavings } = useCart()
+  const { trackEvent } = useAnalytics()
 
   // Dados das caixas térmicas por litragem
   const caixas = {
@@ -442,6 +444,20 @@ const CaixasTermicas = () => {
 
   const sizes = Object.keys(caixas)
   const currentCaixa = caixas[selectedSize]
+
+  // Disparar ViewContent quando a página carrega ou o produto muda
+  useEffect(() => {
+    if (currentCaixa) {
+      trackEvent('ViewContent', {
+        content_name: currentCaixa.nome,
+        content_ids: [`caixa-termica-${selectedSize.toLowerCase()}`],
+        content_type: 'product',
+        content_category: 'Caixas Térmicas',
+        value: currentCaixa.preco / 100,
+        currency: 'BRL'
+      })
+    }
+  }, [selectedSize, currentCaixa, trackEvent])
 
   const handleSizeChange = (size) => {
     setSelectedSize(size)

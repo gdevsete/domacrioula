@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, X, Check, ArrowLeft, Package, Plus } from 'lucide-react'
 import { useCart } from '../contexts/CartContext'
+import { useAnalytics } from '../contexts/AnalyticsContext'
 import { formatCurrency } from '../services/podpayService'
 import './ProductPage.css'
 
@@ -17,6 +18,7 @@ const ProductPage = ({
   const [selectedImage, setSelectedImage] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const { addItem } = useCart()
+  const { trackEvent } = useAnalytics()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -27,6 +29,20 @@ const ProductPage = ({
   }, [selectedProduct])
 
   const currentProduct = products[selectedProduct]
+
+  // Disparar ViewContent quando o produto é visualizado
+  useEffect(() => {
+    if (currentProduct) {
+      trackEvent('ViewContent', {
+        content_name: currentProduct.name,
+        content_ids: [currentProduct.id],
+        content_type: 'product',
+        content_category: title,
+        value: currentProduct.price / 100,
+        currency: 'BRL'
+      })
+    }
+  }, [selectedProduct, currentProduct, title, trackEvent])
 
   const nextImage = () => {
     setSelectedImage((prev) => 

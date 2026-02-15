@@ -1,13 +1,24 @@
 import { createContext, useContext, useState, useMemo } from 'react'
+import { useAnalytics } from './AnalyticsContext'
 
 const CartContext = createContext()
 
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([])
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const { trackEvent } = useAnalytics()
 
   // Adicionar item ao carrinho
   const addItem = (product) => {
+    // Disparar evento AddToCart para Pixel
+    trackEvent('AddToCart', {
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: 'product',
+      value: product.price / 100, // Converter centavos para reais
+      currency: 'BRL'
+    })
+
     setItems(prev => {
       const existingItem = prev.find(item => item.id === product.id)
       if (existingItem) {

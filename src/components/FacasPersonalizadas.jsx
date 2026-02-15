@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X, Ruler, Package, Check, Sparkles, Palette, Award, Star, Scissors, Plus } from 'lucide-react'
 import { useCart } from '../contexts/CartContext'
+import { useAnalytics } from '../contexts/AnalyticsContext'
 import { formatCurrency } from '../services/podpayService'
 import './FacasPersonalizadas.css'
 
@@ -13,6 +14,7 @@ const FacasPersonalizadas = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const { addItem } = useCart()
+  const { trackEvent } = useAnalytics()
 
   // Categorias de facas
   const categorias = {
@@ -209,6 +211,20 @@ const FacasPersonalizadas = () => {
 
   const currentCategory = categorias[selectedCategory]
   const facaAtual = selectedFaca || currentCategory.facas[0]
+
+  // Disparar ViewContent quando a faca é visualizada
+  useEffect(() => {
+    if (facaAtual) {
+      trackEvent('ViewContent', {
+        content_name: facaAtual.nome,
+        content_ids: [facaAtual.id],
+        content_type: 'product',
+        content_category: 'Facas Personalizadas',
+        value: PRECO_FACA / 100,
+        currency: 'BRL'
+      })
+    }
+  }, [facaAtual, trackEvent])
 
   const handleCategoryChange = (cat) => {
     setSelectedCategory(cat)
