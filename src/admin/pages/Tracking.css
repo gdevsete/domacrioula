@@ -195,12 +195,13 @@
 .tracking-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .tracking-table th {
-  padding: 1rem 1.25rem;
+  padding: 1rem 1rem;
   text-align: left;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
@@ -209,8 +210,30 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
+/* Larguras das colunas */
+.tracking-table th:nth-child(1),
+.tracking-table td:nth-child(1) { width: 15%; } /* Código */
+
+.tracking-table th:nth-child(2),
+.tracking-table td:nth-child(2) { width: 8%; } /* Pedido */
+
+.tracking-table th:nth-child(3),
+.tracking-table td:nth-child(3) { width: 22%; } /* Cliente */
+
+.tracking-table th:nth-child(4),
+.tracking-table td:nth-child(4) { width: 12%; } /* Destino */
+
+.tracking-table th:nth-child(5),
+.tracking-table td:nth-child(5) { width: 15%; } /* Status */
+
+.tracking-table th:nth-child(6),
+.tracking-table td:nth-child(6) { width: 16%; } /* Última Atualização */
+
+.tracking-table th:nth-child(7),
+.tracking-table td:nth-child(7) { width: 12%; } /* Ações */
+
 .tracking-table td {
-  padding: 1rem 1.25rem;
+  padding: 1rem 1rem;
   border-bottom: 1px solid #f3f4f6;
   vertical-align: middle;
 }
@@ -232,27 +255,29 @@
 
 .tracking-code {
   font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #8B4513;
   background: #fef3e7;
-  padding: 0.35rem 0.75rem;
+  padding: 0.35rem 0.6rem;
   border-radius: 6px;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .btn-copy {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   color: #9ca3af;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .btn-copy:hover {
@@ -261,8 +286,8 @@
 }
 
 .btn-copy svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .order-number {
@@ -274,25 +299,37 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .customer-name {
   font-weight: 500;
   color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .customer-email {
   font-size: 0.8rem;
   color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .destination {
   color: #4b5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .update-date {
   font-size: 0.85rem;
   color: #6b7280;
+  white-space: nowrap;
 }
 
 /* Status Badge */
@@ -339,26 +376,27 @@
 /* Actions */
 .actions-cell {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  justify-content: center;
 }
 
 .btn-action {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: #f3f4f6;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   color: #6b7280;
   transition: all 0.2s ease;
 }
 
 .btn-action svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .btn-history:hover {
@@ -792,16 +830,49 @@
 /* =========================================
    RESPONSIVE
    ========================================= */
+@media (max-width: 1200px) {
+  /* Larguras das colunas ajustadas para telas menores */
+  .tracking-table th:nth-child(1),
+  .tracking-table td:nth-child(1) { width: 14%; }
+  
+  .tracking-table th:nth-child(2),
+  .tracking-table td:nth-child(2) { width: 7%; }
+  
+  .tracking-table th:nth-child(3),
+  .tracking-table td:nth-child(3) { width: 20%; }
+  
+  .tracking-table th:nth-child(4),
+  .tracking-table td:nth-child(4) { width: 13%; }
+  
+  .tracking-table th:nth-child(5),
+  .tracking-table td:nth-child(5) { width: 16%; }
+  
+  .tracking-table th:nth-child(6),
+  .tracking-table td:nth-child(6) { width: 17%; }
+  
+  .tracking-table th:nth-child(7),
+  .tracking-table td:nth-child(7) { width: 13%; }
+}
+
 @media (max-width: 1024px) {
   .tracking-table {
     display: block;
     overflow-x: auto;
+    table-layout: auto;
   }
   
   .tracking-table th,
   .tracking-table td {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.875rem 0.75rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  
+  /* Reset das larguras fixas para scroll horizontal */
+  .tracking-table th:nth-child(n),
+  .tracking-table td:nth-child(n) { 
+    width: auto; 
+    min-width: max-content;
   }
 }
 
