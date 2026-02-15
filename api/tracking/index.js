@@ -27,10 +27,26 @@ function generateTrackingCode() {
   return code
 }
 
+// Validar token JWT do admin
+function validateAdminToken(token) {
+  try {
+    if (!token) return null
+    const payload = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'))
+    // Verificar se não expirou
+    if (payload.exp < Date.now()) return null
+    // Verificar se tem role de admin
+    if (payload.role !== 'admin') return null
+    return payload
+  } catch {
+    return null
+  }
+}
+
 // Verificar se é admin
 function isAdmin(req) {
   const adminToken = req.headers['x-admin-token']
-  return adminToken === process.env.ADMIN_SECRET_KEY
+  // Validar o token JWT
+  return validateAdminToken(adminToken) !== null
 }
 
 export default async function handler(req, res) {
