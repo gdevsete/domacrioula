@@ -13,7 +13,7 @@
    ========================================= */
 .track-hero {
   position: relative;
-  padding: 4rem 1.5rem 5rem;
+  padding: 4rem 1.5rem 3rem;
   background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #5d3a22 100%);
   overflow: hidden;
 }
@@ -203,8 +203,8 @@
    RESULT SECTION
    ========================================= */
 .track-result {
-  padding: 0 1.5rem 3rem;
-  margin-top: -2rem;
+  padding: 2rem 1.5rem 3rem;
+  margin-top: 0;
 }
 
 .track-result__container {
@@ -877,8 +877,8 @@
    INFO SECTION (Initial State)
    ========================================= */
 .track-info {
-  padding: 0 1.5rem 4rem;
-  margin-top: -1.5rem;
+  padding: 2.5rem 1.5rem 4rem;
+  margin-top: 0;
 }
 
 .track-info__container {
@@ -892,11 +892,12 @@
   font-weight: 700;
   color: #2c1810;
   margin-bottom: 2.5rem;
+  padding-top: 0.5rem;
 }
 
 .track-info__cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 3rem;
 }
@@ -1027,9 +1028,31 @@
 /* =========================================
    RESPONSIVE
    ========================================= */
+
+/* Tablet Large */
+@media (max-width: 1024px) {
+  .track-info__container {
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+  
+  .track-info__card {
+    padding: 1.75rem 1.25rem;
+  }
+  
+  .track-info__card p {
+    font-size: 0.875rem;
+  }
+}
+
+/* Tablet */
 @media (max-width: 768px) {
   .track-hero {
-    padding: 3rem 1rem 4rem;
+    padding: 2.5rem 1rem 2rem;
+  }
+  
+  .track-info {
+    padding: 2rem 1rem 3rem;
   }
 
   .track-hero__icon {
@@ -1054,7 +1077,7 @@
   }
 
   .track-result {
-    padding: 0 1rem 2rem;
+    padding: 1.5rem 1rem 2rem;
   }
 
   .track-timeline__steps {
@@ -1112,10 +1135,12 @@
 
   .track-info__cards {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .track-info__title {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
+    margin-bottom: 1.5rem;
   }
 
   .track-item {
@@ -1196,8 +1221,8 @@
   }
 
   .track-info {
-    padding: 0 0.75rem 3rem;
-    margin-top: -1rem;
+    padding: 1.5rem 0.75rem 3rem;
+    margin-top: 0;
   }
 
   .track-info__card {
