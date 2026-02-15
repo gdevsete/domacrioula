@@ -188,6 +188,12 @@
   .contact__info-item {
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .contact__info-content {
+    min-width: 0;
+    word-break: break-word;
   }
 
   .contact__info-content strong {
@@ -196,6 +202,7 @@
 
   .contact__info-content p {
     font-size: 0.85rem;
+    word-break: break-word;
   }
 
   .contact__company {
@@ -205,11 +212,44 @@
   .contact__form-group input,
   .contact__form-group textarea {
     padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 0.95rem;
+    font-size: 16px; /* Prevent zoom on iOS */
   }
 
   .contact__submit-btn {
     padding: var(--spacing-sm);
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact__info,
+  .contact__form {
+    padding: var(--spacing-sm);
+  }
+
+  .contact__info-title,
+  .contact__form-title {
+    font-size: 1.15rem;
+  }
+
+  .contact__info-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .contact__company strong,
+  .contact__company span {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .contact__info-item {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .contact__info-icon {
+    align-self: flex-start;
   }
 }
