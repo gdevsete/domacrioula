@@ -58,6 +58,9 @@ const QuoteGenerator = () => {
     })
   }
 
+  // Helper to convert reais to cents string (avoids floating point issues)
+  const toCents = (reais) => Math.round(reais * 100).toString()
+
   const formatCurrencyInput = (value) => {
     const numbers = value.replace(/\D/g, '')
     return numbers
@@ -422,8 +425,16 @@ const QuoteGenerator = () => {
                       />
                     </div>
                     <div className="item-total">
-                      <label>Total</label>
-                      <span>{formatCurrency((calculateItemTotal(item) * 100).toString())}</span>
+                      <label>{discountApplied && canApplyDiscount() ? 'Com Desconto' : 'Total'}</label>
+                      <span className={discountApplied && canApplyDiscount() ? 'with-discount' : ''}>
+                        {discountApplied && canApplyDiscount() 
+                          ? formatCurrency(toCents(calculateItemTotal(item) * 0.8))
+                          : formatCurrency(toCents(calculateItemTotal(item)))
+                        }
+                      </span>
+                      {discountApplied && canApplyDiscount() && (
+                        <span className="original-item-price">{formatCurrency(toCents(calculateItemTotal(item)))}</span>
+                      )}
                     </div>
                     <button 
                       type="button" 
@@ -443,7 +454,7 @@ const QuoteGenerator = () => {
 
             <div className="items-total">
               <span className="total-label">TOTAL DO ORÇAMENTO:</span>
-              <span className="total-value">{formatCurrency((total * 100).toString())}</span>
+              <span className="total-value">{formatCurrency(toCents(total))}</span>
             </div>
 
             {/* Discount Section */}
@@ -499,15 +510,15 @@ const QuoteGenerator = () => {
                 <div className="discount-result">
                   <div className="original-price">
                     <span className="label">Valor Original:</span>
-                    <span className="value strikethrough">{formatCurrency((total * 100).toString())}</span>
+                    <span className="value strikethrough">{formatCurrency(toCents(total))}</span>
                   </div>
                   <div className="discount-amount">
                     <span className="label">Desconto (20%):</span>
-                    <span className="value discount">- {formatCurrency((total * 0.2 * 100).toString())}</span>
+                    <span className="value discount">- {formatCurrency(toCents(total * 0.2))}</span>
                   </div>
                   <div className="final-price">
                     <span className="label">VALOR FINAL:</span>
-                    <span className="value">{formatCurrency((calculateDiscountedTotal() * 100).toString())}</span>
+                    <span className="value">{formatCurrency(toCents(calculateDiscountedTotal()))}</span>
                   </div>
                 </div>
               )}
@@ -695,7 +706,16 @@ const QuoteGenerator = () => {
                         <td className="col-desc">{item.description}</td>
                         <td className="col-qty">{item.quantity}</td>
                         <td className="col-unit">{formatCurrency(item.unitValue)}</td>
-                        <td className="col-total">{formatCurrency((calculateItemTotal(item) * 100).toString())}</td>
+                        <td className="col-total">
+                          {discountApplied && canApplyDiscount() ? (
+                            <>
+                              <span className="discounted-price">{formatCurrency(toCents(calculateItemTotal(item) * 0.8))}</span>
+                              <span className="original-price-small">{formatCurrency(toCents(calculateItemTotal(item)))}</span>
+                            </>
+                          ) : (
+                            formatCurrency(toCents(calculateItemTotal(item)))
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -704,21 +724,21 @@ const QuoteGenerator = () => {
                       <>
                         <tr className="subtotal-row">
                           <td colSpan="4" className="subtotal-label">Subtotal</td>
-                          <td className="subtotal-value">{formatCurrency((total * 100).toString())}</td>
+                          <td className="subtotal-value">{formatCurrency(toCents(total))}</td>
                         </tr>
                         <tr className="discount-row">
                           <td colSpan="4" className="discount-label">Desconto (20% - 3+ unidades)</td>
-                          <td className="discount-value">- {formatCurrency((total * 0.2 * 100).toString())}</td>
+                          <td className="discount-value">- {formatCurrency(toCents(total * 0.2))}</td>
                         </tr>
                         <tr className="final-total-row">
                           <td colSpan="4" className="total-label">VALOR FINAL</td>
-                          <td className="total-value final">{formatCurrency((calculateDiscountedTotal() * 100).toString())}</td>
+                          <td className="total-value final">{formatCurrency(toCents(calculateDiscountedTotal()))}</td>
                         </tr>
                       </>
                     ) : (
                       <tr>
                         <td colSpan="4" className="total-label">VALOR TOTAL</td>
-                        <td className="total-value">{formatCurrency((total * 100).toString())}</td>
+                        <td className="total-value">{formatCurrency(toCents(total))}</td>
                       </tr>
                     )}
                   </tfoot>
