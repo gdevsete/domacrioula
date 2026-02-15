@@ -361,7 +361,7 @@ const Tracking = () => {
             <tbody>
               {filteredTrackings.map(tracking => (
                 <tr key={tracking.id}>
-                  <td>
+                  <td data-label="Código">
                     <div className="code-cell">
                       <span className="tracking-code">{tracking.tracking_code}</span>
                       <button 
@@ -376,10 +376,10 @@ const Tracking = () => {
                       </button>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Pedido">
                     <span className="order-number">#{tracking.order_number}</span>
                   </td>
-                  <td>
+                  <td data-label="Cliente">
                     <div className="customer-cell">
                       <span className="customer-name">{tracking.customer_name}</span>
                       {tracking.customer_email && (
@@ -387,21 +387,21 @@ const Tracking = () => {
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Destino">
                     <span className="destination">
                       {tracking.destination_city} - {tracking.destination_state}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`status-badge ${getStatusClass(tracking.current_status)}`}>
                       <span className="status-icon">{getStatusIcon(tracking.current_status)}</span>
                       {getStatusLabel(tracking.current_status)}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Atualização">
                     <span className="update-date">{formatDate(tracking.updated_at)}</span>
                   </td>
-                  <td>
+                  <td data-label="">
                     <div className="actions-cell">
                       <button 
                         className="btn-action btn-history"
