@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Search, Package, Truck, CheckCircle, Clock, AlertCircle, 
-  MapPin, Copy, ExternalLink, Loader2, ArrowRight
+  MapPin, Copy, ExternalLink, Loader2, ArrowRight, Box,
+  ShoppingBag, CreditCard, Home, Phone, Mail, Calendar
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import './TrackOrder.css'
@@ -29,8 +30,14 @@ const formatDate = (dateString) => {
   const date = new Date(dateString)
   return date.toLocaleDateString('pt-BR', {
     day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+const formatTime = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit'
   })
@@ -66,7 +73,6 @@ const TrackOrder = () => {
     setError('')
     setOrder(null)
     
-    // Simular delay de busca
     await new Promise(resolve => setTimeout(resolve, 500))
     
     const foundOrder = findOrder(searchTerm.trim())
@@ -95,240 +101,362 @@ const TrackOrder = () => {
   const paymentStatus = order ? PAYMENT_STATUS[order.paymentStatus] || PAYMENT_STATUS.pending : null
 
   return (
-    <div className="track-order-page">
-      <div className="track-order-container">
-        {/* Header */}
-        <div className="track-order-header">
-          <div className="track-order-icon">
-            <Package size={40} />
-          </div>
-          <h1>Rastrear Pedido</h1>
-          <p>Digite o número do pedido ou código de rastreio para acompanhar sua entrega</p>
+    <div className="track-page">
+      {/* Hero Section */}
+      <section className="track-hero">
+        <div className="track-hero__bg">
+          <div className="track-hero__shape track-hero__shape--1"></div>
+          <div className="track-hero__shape track-hero__shape--2"></div>
+          <div className="track-hero__shape track-hero__shape--3"></div>
         </div>
-
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="track-order-form">
-          <div className="track-order-input-wrapper">
-            <Search size={20} className="track-order-input-icon" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value.toUpperCase())
-                setError('')
-              }}
-              placeholder="Ex: DC12345678 ou código de rastreio"
-              disabled={loading}
-            />
+        
+        <div className="track-hero__content">
+          <div className="track-hero__icon">
+            <Package size={36} strokeWidth={1.5} />
           </div>
-          <button type="submit" disabled={loading} className="track-order-submit">
-            {loading ? (
-              <Loader2 size={20} className="spinning" />
-            ) : (
-              <>
-                <span>Buscar</span>
-                <ArrowRight size={18} />
-              </>
-            )}
-          </button>
-        </form>
+          <h1 className="track-hero__title">Rastrear Pedido</h1>
+          <p className="track-hero__subtitle">
+            Acompanhe sua entrega em tempo real. Digite o número do pedido ou código de rastreio.
+          </p>
+          
+          <form onSubmit={handleSearch} className="track-search">
+            <div className="track-search__field">
+              <Search size={22} className="track-search__icon" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value.toUpperCase())
+                  setError('')
+                }}
+                placeholder="Ex: DC12345678 ou código dos Correios"
+                disabled={loading}
+                className="track-search__input"
+              />
+            </div>
+            <button type="submit" disabled={loading} className="track-search__btn">
+              {loading ? (
+                <Loader2 size={22} className="spinning" />
+              ) : (
+                <>
+                  <span>Rastrear</span>
+                  <ArrowRight size={20} />
+                </>
+              )}
+            </button>
+          </form>
 
-        {error && (
-          <div className="track-order-error">
-            <AlertCircle size={18} />
-            <span>{error}</span>
-          </div>
-        )}
+          {error && (
+            <div className="track-error">
+              <AlertCircle size={18} />
+              <span>{error}</span>
+            </div>
+          )}
+        </div>
+      </section>
 
-        {/* Order Result */}
-        {order && (
-          <div className="track-order-result">
-            {/* Order Header */}
-            <div className="track-order-result-header">
-              <div className="track-order-result-info">
-                <h2>Pedido #{order.orderNumber}</h2>
-                <span className="track-order-date">
-                  <Clock size={14} />
-                  {formatDate(order.createdAt)}
-                </span>
+      {/* Order Result */}
+      {order && (
+        <section className="track-result">
+          <div className="track-result__container">
+            {/* Status Card */}
+            <div className="track-status-card">
+              <div className="track-status-card__header">
+                <div className="track-status-card__order">
+                  <span className="track-status-card__label">Pedido</span>
+                  <span className="track-status-card__number">#{order.orderNumber}</span>
+                </div>
+                <div className="track-status-card__badges">
+                  <span className={`track-badge track-badge--${paymentStatus.color}`}>
+                    <CreditCard size={14} />
+                    {paymentStatus.label}
+                  </span>
+                  <span className={`track-badge track-badge--${status.color} track-badge--lg`}>
+                    <status.icon size={16} />
+                    {status.label}
+                  </span>
+                </div>
               </div>
-              <div className="track-order-badges">
-                <span className={`track-order-payment-badge ${paymentStatus.color}`}>
-                  {paymentStatus.label}
-                </span>
-                <span className={`track-order-status-badge ${status.color}`}>
-                  <status.icon size={14} />
-                  {status.label}
-                </span>
+              
+              <div className="track-status-card__date">
+                <Calendar size={16} />
+                <span>Pedido realizado em {formatDate(order.createdAt)} às {formatTime(order.createdAt)}</span>
               </div>
             </div>
 
-            {/* Tracking Timeline */}
+            {/* Timeline */}
             {order.status !== 'cancelled' && (
-              <div className="track-order-timeline">
-                <div className={`track-order-timeline-step ${status.step >= 1 ? 'active' : ''} ${status.step > 1 ? 'completed' : ''}`}>
-                  <div className="track-order-timeline-icon">
-                    <Package size={20} />
+              <div className="track-timeline">
+                <h2 className="track-section-title">
+                  <Truck size={22} />
+                  Status da Entrega
+                </h2>
+                
+                <div className="track-timeline__steps">
+                  <div className={`track-timeline__step ${status.step >= 1 ? 'track-timeline__step--active' : ''} ${status.step > 1 ? 'track-timeline__step--done' : ''}`}>
+                    <div className="track-timeline__step-icon">
+                      <Box size={24} />
+                    </div>
+                    <div className="track-timeline__step-line"></div>
+                    <div className="track-timeline__step-content">
+                      <h4>Pedido Confirmado</h4>
+                      <p>Recebemos seu pedido e estamos preparando</p>
+                    </div>
                   </div>
-                  <div className="track-order-timeline-content">
-                    <h4>Pedido Confirmado</h4>
-                    <p>Seu pedido foi recebido e está sendo processado</p>
+                  
+                  <div className={`track-timeline__step ${status.step >= 2 ? 'track-timeline__step--active' : ''} ${status.step > 2 ? 'track-timeline__step--done' : ''}`}>
+                    <div className="track-timeline__step-icon">
+                      <Truck size={24} />
+                    </div>
+                    <div className="track-timeline__step-line"></div>
+                    <div className="track-timeline__step-content">
+                      <h4>Em Trânsito</h4>
+                      <p>Seu pedido está a caminho</p>
+                    </div>
+                  </div>
+                  
+                  <div className={`track-timeline__step ${status.step >= 3 ? 'track-timeline__step--active' : ''}`}>
+                    <div className="track-timeline__step-icon">
+                      <Home size={24} />
+                    </div>
+                    <div className="track-timeline__step-content">
+                      <h4>Entregue</h4>
+                      <p>Pedido entregue com sucesso</p>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="track-order-timeline-line"></div>
-                
-                <div className={`track-order-timeline-step ${status.step >= 2 ? 'active' : ''} ${status.step > 2 ? 'completed' : ''}`}>
-                  <div className="track-order-timeline-icon">
-                    <Truck size={20} />
-                  </div>
-                  <div className="track-order-timeline-content">
-                    <h4>Enviado</h4>
-                    <p>Produto enviado para transportadora</p>
-                  </div>
-                </div>
-                
-                <div className="track-order-timeline-line"></div>
-                
-                <div className={`track-order-timeline-step ${status.step >= 3 ? 'active' : ''}`}>
-                  <div className="track-order-timeline-icon">
-                    <CheckCircle size={20} />
-                  </div>
-                  <div className="track-order-timeline-content">
-                    <h4>Entregue</h4>
-                    <p>Pedido entregue com sucesso</p>
-                  </div>
-                </div>
+              </div>
+            )}
+
+            {order.status === 'cancelled' && (
+              <div className="track-cancelled">
+                <AlertCircle size={48} />
+                <h3>Pedido Cancelado</h3>
+                <p>Este pedido foi cancelado. Entre em contato conosco se precisar de ajuda.</p>
               </div>
             )}
 
             {/* Tracking Code */}
             {order.trackingCode && (
-              <div className="track-order-tracking">
-                <h3>
-                  <Truck size={18} />
+              <div className="track-tracking">
+                <h2 className="track-section-title">
+                  <Package size={22} />
                   Código de Rastreio
-                </h3>
-                <div className="track-order-tracking-code">
-                  <span className="code">{order.trackingCode}</span>
-                  <button 
-                    onClick={() => copyTrackingCode(order.trackingCode)}
-                    className="copy-btn"
-                    title="Copiar código"
+                </h2>
+                
+                <div className="track-tracking__box">
+                  <div className="track-tracking__code-wrapper">
+                    <span className="track-tracking__label">Código:</span>
+                    <span className="track-tracking__code">{order.trackingCode}</span>
+                    <button 
+                      onClick={() => copyTrackingCode(order.trackingCode)}
+                      className={`track-tracking__copy ${copiedCode ? 'track-tracking__copy--success' : ''}`}
+                    >
+                      {copiedCode ? <CheckCircle size={18} /> : <Copy size={18} />}
+                      {copiedCode ? 'Copiado!' : 'Copiar'}
+                    </button>
+                  </div>
+                  
+                  <a 
+                    href={`https://www.linkcorreios.com.br/?id=${order.trackingCode}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="track-tracking__correios"
                   >
-                    {copiedCode ? <CheckCircle size={16} /> : <Copy size={16} />}
-                    {copiedCode ? 'Copiado!' : 'Copiar'}
-                  </button>
+                    <img 
+                      src="/images/logo/logoCorreios.png" 
+                      alt="Correios" 
+                      className="track-tracking__correios-logo"
+                    />
+                    <span>Rastrear nos Correios</span>
+                    <ExternalLink size={18} />
+                  </a>
                 </div>
-                <a 
-                  href={`https://www.linkcorreios.com.br/?id=${order.trackingCode}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="track-order-correios-link"
-                >
-                  <img 
-                    src="/images/logo/logoCorreios.png" 
-                    alt="Correios" 
-                    className="track-order-correios-logo"
-                  />
-                  <span>Rastrear nos Correios</span>
-                  <ExternalLink size={16} />
-                </a>
               </div>
             )}
 
             {!order.trackingCode && order.paymentStatus === 'paid' && order.status === 'processing' && (
-              <div className="track-order-tracking-pending">
-                <Clock size={20} />
-                <div>
+              <div className="track-pending">
+                <div className="track-pending__icon">
+                  <Clock size={28} />
+                </div>
+                <div className="track-pending__content">
                   <h4>Aguardando Envio</h4>
-                  <p>O código de rastreio será informado assim que o pedido for despachado.</p>
+                  <p>O código de rastreio será informado assim que o pedido for despachado para a transportadora.</p>
                 </div>
               </div>
             )}
 
             {/* Order Items */}
-            <div className="track-order-items">
-              <h3>
-                <Package size={18} />
+            <div className="track-items">
+              <h2 className="track-section-title">
+                <ShoppingBag size={22} />
                 Itens do Pedido
-              </h3>
-              <div className="track-order-items-list">
+              </h2>
+              
+              <div className="track-items__list">
                 {order.items?.map((item, index) => (
-                  <div key={index} className="track-order-item">
-                    {item.image && (
-                      <img src={item.image} alt={item.name} />
-                    )}
-                    <div className="track-order-item-info">
-                      <span className="name">{item.name}</span>
-                      <span className="qty">Quantidade: {item.quantity}</span>
+                  <div key={index} className="track-item">
+                    <div className="track-item__image">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} />
+                      ) : (
+                        <Package size={28} />
+                      )}
                     </div>
-                    <span className="price">{formatCurrency(item.price * item.quantity)}</span>
+                    <div className="track-item__details">
+                      <h4 className="track-item__name">{item.name}</h4>
+                      <span className="track-item__qty">Quantidade: {item.quantity}</span>
+                    </div>
+                    <span className="track-item__price">{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 ))}
               </div>
               
-              {order.discount > 0 && (
-                <div className="track-order-summary-row discount">
-                  <span>Desconto</span>
-                  <span>-{formatCurrency(order.discount)}</span>
+              <div className="track-items__summary">
+                {order.discount > 0 && (
+                  <div className="track-items__row track-items__row--discount">
+                    <span>Desconto aplicado</span>
+                    <span>-{formatCurrency(order.discount)}</span>
+                  </div>
+                )}
+                <div className="track-items__row track-items__row--total">
+                  <span>Total do Pedido</span>
+                  <span>{formatCurrency(order.total)}</span>
                 </div>
-              )}
-              
-              <div className="track-order-summary-row total">
-                <span>Total</span>
-                <span>{formatCurrency(order.total)}</span>
               </div>
             </div>
 
             {/* Shipping Address */}
             {order.shippingAddress && (
-              <div className="track-order-address">
-                <h3>
-                  <MapPin size={18} />
+              <div className="track-address">
+                <h2 className="track-section-title">
+                  <MapPin size={22} />
                   Endereço de Entrega
-                </h3>
-                <p>
-                  {order.shippingAddress.street}, {order.shippingAddress.streetNumber}
-                  {order.shippingAddress.complement && ` - ${order.shippingAddress.complement}`}
-                  <br />
-                  {order.shippingAddress.neighborhood} - {order.shippingAddress.city}/{order.shippingAddress.state}
-                  <br />
-                  CEP: {order.shippingAddress.zipCode}
-                </p>
+                </h2>
+                
+                <div className="track-address__card">
+                  <div className="track-address__icon">
+                    <Home size={24} />
+                  </div>
+                  <div className="track-address__info">
+                    <p className="track-address__line">
+                      {order.shippingAddress.street}, {order.shippingAddress.streetNumber}
+                      {order.shippingAddress.complement && ` - ${order.shippingAddress.complement}`}
+                    </p>
+                    <p className="track-address__line">{order.shippingAddress.neighborhood}</p>
+                    <p className="track-address__line">{order.shippingAddress.city} - {order.shippingAddress.state}</p>
+                    <p className="track-address__cep">CEP: {order.shippingAddress.zipCode}</p>
+                  </div>
+                </div>
               </div>
             )}
-          </div>
-        )}
 
-        {/* Not Found State */}
-        {searched && !order && !error && (
-          <div className="track-order-not-found">
-            <Package size={48} />
-            <h3>Pedido não encontrado</h3>
-            <p>Verifique o número do pedido ou código de rastreio e tente novamente.</p>
+            {/* Help Section */}
+            <div className="track-help">
+              <h3>Precisa de ajuda?</h3>
+              <p>Nossa equipe está pronta para ajudar você com qualquer dúvida sobre seu pedido.</p>
+              <div className="track-help__buttons">
+                <a href="https://wa.me/5551998137009" target="_blank" rel="noopener noreferrer" className="track-help__btn track-help__btn--whatsapp">
+                  <Phone size={18} />
+                  WhatsApp
+                </a>
+                <a href="mailto:contato@domacrioula.com.br" className="track-help__btn track-help__btn--email">
+                  <Mail size={18} />
+                  E-mail
+                </a>
+              </div>
+            </div>
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Footer Links */}
-        <div className="track-order-footer">
+      {/* Not Found State */}
+      {searched && !order && !error && (
+        <section className="track-not-found">
+          <div className="track-not-found__container">
+            <div className="track-not-found__icon">
+              <Package size={64} strokeWidth={1} />
+            </div>
+            <h2>Pedido não encontrado</h2>
+            <p>Não conseguimos localizar um pedido com esse número. Verifique se digitou corretamente.</p>
+            <button onClick={() => { setSearched(false); setSearchTerm(''); }} className="track-not-found__btn">
+              Tentar Novamente
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Initial State - Info Cards */}
+      {!searched && !order && (
+        <section className="track-info">
+          <div className="track-info__container">
+            <h2 className="track-info__title">Como rastrear seu pedido</h2>
+            
+            <div className="track-info__cards">
+              <div className="track-info__card">
+                <div className="track-info__card-icon">
+                  <ShoppingBag size={28} />
+                </div>
+                <h3>1. Localize seu código</h3>
+                <p>O número do pedido foi enviado para seu e-mail após a compra. Também está disponível em "Minha Conta".</p>
+              </div>
+              
+              <div className="track-info__card">
+                <div className="track-info__card-icon">
+                  <Search size={28} />
+                </div>
+                <h3>2. Digite no campo acima</h3>
+                <p>Insira o número do pedido (ex: DC12345678) ou o código de rastreio dos Correios.</p>
+              </div>
+              
+              <div className="track-info__card">
+                <div className="track-info__card-icon">
+                  <Truck size={28} />
+                </div>
+                <h3>3. Acompanhe a entrega</h3>
+                <p>Veja o status atualizado do seu pedido e acompanhe cada etapa até a entrega.</p>
+              </div>
+            </div>
+
+            <div className="track-info__cta">
+              {isAuthenticated ? (
+                <Link to="/minha-conta" className="track-info__cta-btn">
+                  <Package size={20} />
+                  Ver meus pedidos
+                </Link>
+              ) : (
+                <>
+                  <p>Tem uma conta? Acesse para ver todos os seus pedidos automaticamente.</p>
+                  <div className="track-info__cta-buttons">
+                    <Link to="/login" className="track-info__cta-btn track-info__cta-btn--primary">
+                      Fazer Login
+                    </Link>
+                    <Link to="/cadastro" className="track-info__cta-btn track-info__cta-btn--secondary">
+                      Criar Conta
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {order && (
+        <section className="track-footer">
           {isAuthenticated ? (
-            <Link to="/minha-conta" className="track-order-link">
+            <Link to="/minha-conta" className="track-footer__link">
+              <ArrowRight size={18} />
               Ver todos os meus pedidos
             </Link>
           ) : (
-            <div className="track-order-footer-links">
-              <Link to="/login" className="track-order-link">
-                Fazer login para ver meus pedidos
-              </Link>
-              <span className="track-order-divider">ou</span>
-              <Link to="/cadastro" className="track-order-link-secondary">
-                Criar uma conta
-              </Link>
-            </div>
+            <Link to="/login" className="track-footer__link">
+              Fazer login para ver todos os pedidos
+            </Link>
           )}
-        </div>
-      </div>
+        </section>
+      )}
     </div>
   )
 }
