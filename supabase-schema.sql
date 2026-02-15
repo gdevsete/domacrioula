@@ -180,6 +180,30 @@ CREATE POLICY "Service role full access admins" ON admins
   FOR ALL USING (auth.role() = 'service_role');
 
 -- =====================================================
+-- CÓDIGOS DE RECUPERAÇÃO DE SENHA
+-- =====================================================
+CREATE TABLE IF NOT EXISTS password_reset_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  code TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Índice para busca rápida
+CREATE INDEX IF NOT EXISTS idx_reset_codes_email ON password_reset_codes(email);
+CREATE INDEX IF NOT EXISTS idx_reset_codes_code ON password_reset_codes(code);
+
+-- RLS para códigos de reset
+ALTER TABLE password_reset_codes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Service role can manage reset codes" ON password_reset_codes;
+CREATE POLICY "Service role can manage reset codes" ON password_reset_codes
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- =====================================================
 -- CRIAR ADMIN PADRÃO (execute uma vez)
 -- Senha: Admin@2026! (hash bcrypt abaixo)
 -- =====================================================

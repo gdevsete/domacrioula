@@ -217,6 +217,24 @@
   color: #8B4513;
 }
 
+/* Forgot Password Link */
+.login-forgot-password {
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.login-forgot-password a {
+  color: #8B4513;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-forgot-password a:hover {
+  color: #5D2E0C;
+  text-decoration: underline;
+}
+
 /* Submit Button */
 .login-submit {
   display: flex;

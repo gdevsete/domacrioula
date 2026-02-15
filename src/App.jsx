@@ -17,6 +17,7 @@ import KitChurrascoPage from './pages/KitChurrascoPage'
 import AcessoriosChurrascoPage from './pages/AcessoriosChurrascoPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
 import UserPanel from './pages/UserPanel'
 import TrackOrder from './pages/TrackOrder'
 import './App.css'
@@ -77,6 +78,7 @@ function App() {
                             <Route path="/acessorios-churrasco" element={<AcessoriosChurrascoPage />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/cadastro" element={<Register />} />
+                            <Route path="/esqueci-senha" element={<ForgotPassword />} />
                             <Route path="/minha-conta" element={<UserPanel />} />
                             <Route path="/rastrear" element={<TrackOrder />} />
                           </Routes>
