@@ -25,58 +25,76 @@
   to { transform: rotate(360deg); }
 }
 
-/* Header */
+/* Header - Large variant */
 .analytics-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  gap: var(--space-xl);
+  padding: var(--space-xl) var(--space-2xl);
+  background: linear-gradient(135deg, var(--admin-card), var(--admin-bg));
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-xl);
   flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .analytics-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 28px;
+  font-weight: 800;
   color: var(--admin-text);
   margin: 0;
 }
 
+.analytics-header h1 svg {
+  width: 36px;
+  height: 36px;
+  color: var(--admin-primary);
+}
+
 .analytics-header p {
-  color: var(--admin-text-light);
-  margin: 0.25rem 0 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 16px;
+  margin: 8px 0 0 0;
 }
 
 .header-right {
   display: flex;
-  gap: 0.75rem;
+  gap: 12px;
   align-items: center;
 }
 
 .header-right select {
-  padding: 0.5rem 1rem;
+  padding: 12px 16px;
   border: 1px solid var(--admin-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--admin-card);
   color: var(--admin-text);
-  font-size: 0.875rem;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .btn-refresh {
-  padding: 0.5rem 1rem;
-  background: var(--admin-primary);
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-hover));
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 8px rgba(var(--admin-primary-rgb), 0.3);
 }
 
 .btn-refresh:hover {
-  background: var(--admin-primary-dark);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--admin-primary-rgb), 0.4);
 }
 
 /* Tabs */

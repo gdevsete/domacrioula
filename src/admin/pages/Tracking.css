@@ -12,31 +12,36 @@
    ========================================= */
 .tracking-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-lg);
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-xl) var(--space-2xl);
+  background: linear-gradient(135deg, var(--admin-card), var(--admin-bg));
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .tracking-header__left h1 {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  font-size: 22px;
-  font-weight: 700;
+  gap: var(--space-md);
+  font-size: 28px;
+  font-weight: 800;
   color: var(--admin-text);
-  margin: 0 0 4px;
+  margin: 0 0 8px;
 }
 
 .tracking-header__left h1 svg {
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   color: var(--admin-primary);
 }
 
 .tracking-header__left p {
-  color: var(--admin-text-muted);
-  font-size: 14px;
+  color: var(--admin-text-secondary);
+  font-size: 16px;
   margin: 0;
 }
 
