@@ -127,7 +127,7 @@ export default async function handler(req, res) {
         const resend = new Resend(RESEND_API_KEY)
         
         const { data: emailData, error: emailError } = await resend.emails.send({
-          from: 'Doma Crioula <onboarding@resend.dev>',
+          from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
           to: [email.toLowerCase()],
           subject: 'Bem-vindo à Doma Crioula! 🎉',
           html: `
