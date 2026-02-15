@@ -127,6 +127,12 @@ const ReceiptGenerator = () => {
       const element = receiptRef.current
       const receiptNumber = generateReceiptNumber()
       
+      // Remove scale transform for PDF generation
+      const originalTransform = element.style.transform
+      const originalMarginBottom = element.style.marginBottom
+      element.style.transform = 'none'
+      element.style.marginBottom = '0'
+      
       // Sanitize filename
       const sanitizedName = formData.customerName
         .normalize('NFD')
@@ -155,6 +161,10 @@ const ReceiptGenerator = () => {
       }
       
       await html2pdf().set(opt).from(element).save()
+      
+      // Restore original transform
+      element.style.transform = originalTransform
+      element.style.marginBottom = originalMarginBottom
       
       addNotification('success', 'Sucesso', `Recibo gerado: ${filename}`)
     } catch (error) {

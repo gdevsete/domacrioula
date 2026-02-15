@@ -165,6 +165,12 @@ const QuoteGenerator = () => {
       
       const element = quoteRef.current
       
+      // Remove scale transform for PDF generation
+      const originalTransform = element.style.transform
+      const originalMarginBottom = element.style.marginBottom
+      element.style.transform = 'none'
+      element.style.marginBottom = '0'
+      
       const sanitizedName = formData.customerName
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -192,6 +198,10 @@ const QuoteGenerator = () => {
       }
       
       await html2pdf().set(opt).from(element).save()
+      
+      // Restore original transform
+      element.style.transform = originalTransform
+      element.style.marginBottom = originalMarginBottom
       
       addNotification('success', 'Sucesso', `Orçamento gerado: ${filename}`)
     } catch (error) {
