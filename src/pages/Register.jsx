@@ -302,8 +302,24 @@ const Register = () => {
         replace: true 
       })
     } catch (err) {
-      setErrors({ general: err.message || 'Erro ao criar conta' })
-      setStep(1) // Voltar ao primeiro passo se erro for de email duplicado
+      const errorMsg = err.message || 'Erro ao criar conta'
+      
+      // Verificar se é erro de CPF/email duplicado
+      if (errorMsg.includes('CPF') || errorMsg.includes('CNPJ') || errorMsg.includes('documento')) {
+        setErrors({ 
+          general: errorMsg,
+          type: 'DOCUMENT_EXISTS'
+        })
+      } else if (errorMsg.includes('Email') || errorMsg.includes('email')) {
+        setErrors({ 
+          general: errorMsg,
+          type: 'EMAIL_EXISTS'
+        })
+        setStep(1)
+      } else {
+        setErrors({ general: errorMsg })
+        setStep(1)
+      }
     } finally {
       setLoading(false)
     }
@@ -378,7 +394,20 @@ const Register = () => {
             {errors.general && (
               <div className="register-alert register-alert--error">
                 <AlertCircle size={18} />
-                <span>{errors.general}</span>
+                <div className="register-alert-content">
+                  <span>{errors.general}</span>
+                  {(errors.type === 'DOCUMENT_EXISTS' || errors.type === 'EMAIL_EXISTS') && (
+                    <div className="register-alert-actions">
+                      <Link to="/entrar" className="register-alert-link">
+                        Fazer Login
+                      </Link>
+                      <span className="register-alert-separator">ou</span>
+                      <Link to="/recuperar-senha" className="register-alert-link">
+                        Esqueci minha senha
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

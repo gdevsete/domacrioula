@@ -172,6 +172,35 @@
   border: 1px solid #fecaca;
 }
 
+.register-alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.register-alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.register-alert-link {
+  color: #c45a3d;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.register-alert-link:hover {
+  color: #2c1810;
+}
+
+.register-alert-separator {
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
 /* Form */
 .register-form {
   display: flex;

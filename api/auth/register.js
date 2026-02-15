@@ -38,11 +38,6 @@ export default async function handler(req, res) {
   try {
     const { email, password, name, phone, document, address } = req.body
 
-    console.log('=== REGISTRO RECEBIDO ===')
-    console.log('Email:', email)
-    console.log('Name:', name)
-    console.log('Address recebido:', JSON.stringify(address))
-
     // Validações
     if (!email || !password || !name) {
       return res.status(400).json({ 
@@ -64,7 +59,27 @@ export default async function handler(req, res) {
       .single()
 
     if (existingUser) {
-      return res.status(400).json({ error: 'Email já cadastrado' })
+      return res.status(400).json({ 
+        error: 'Email já cadastrado',
+        code: 'EMAIL_EXISTS'
+      })
+    }
+
+    // Verificar se CPF/CNPJ já existe
+    if (document) {
+      const cleanDoc = document.replace(/\D/g, '')
+      const { data: existingDoc } = await supabase
+        .from('users')
+        .select('id, email')
+        .eq('document', document)
+        .single()
+
+      if (existingDoc) {
+        return res.status(400).json({ 
+          error: 'CPF/CNPJ já cadastrado. Faça login ou recupere sua senha.',
+          code: 'DOCUMENT_EXISTS'
+        })
+      }
     }
 
     // Criar usuário no Supabase Auth
@@ -81,7 +96,6 @@ export default async function handler(req, res) {
 
     // Montar array de endereços
     const addresses = address ? [address] : []
-    console.log('Addresses a salvar:', JSON.stringify(addresses))
 
     // Salvar dados adicionais na tabela users
     const { data: userData, error: userError } = await supabase
@@ -97,8 +111,6 @@ export default async function handler(req, res) {
       })
       .select()
       .single()
-
-    console.log('userData salvo:', JSON.stringify(userData))
 
     if (userError) {
       console.error('User insert error:', userError)
