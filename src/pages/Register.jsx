@@ -401,10 +401,6 @@ const Register = () => {
                       <Link to="/entrar" className="register-alert-link">
                         Fazer Login
                       </Link>
-                      <span className="register-alert-separator">ou</span>
-                      <Link to="/recuperar-senha" className="register-alert-link">
-                        Esqueci minha senha
-                      </Link>
                     </div>
                   )}
                 </div>
