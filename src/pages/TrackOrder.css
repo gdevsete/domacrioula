@@ -1262,6 +1262,53 @@
   .track-address__info {
     text-align: center;
   }
+  
+  .history-item {
+    gap: 0.75rem;
+  }
+  
+  .history-marker {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .progress-steps {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .progress-step {
+    flex-direction: row;
+    text-align: left;
+  }
+  
+  .progress-step__icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .progress-step__line {
+    position: absolute;
+    left: 21px;
+    top: 44px;
+    width: 3px;
+    height: calc(100% - 4px);
+  }
+  
+  .progress-step__content {
+    margin-top: 0;
+    margin-left: 1rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  .progress-step:last-child .progress-step__content {
+    padding-bottom: 0;
+  }
 }
 
 @media (max-width: 360px) {
@@ -1277,5 +1324,539 @@
   .track-badge--lg {
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
+  }
+}
+
+/* =========================================
+   NEW TRACKING COMPONENTS
+   ========================================= */
+
+/* Status Card - New Layout */
+.track-status-card__info {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.track-status-card__code .label,
+.track-status-card__order .label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.track-status-card__code .code-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.track-status-card__code .code {
+  font-family: 'Courier New', monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #8B4513;
+  background: linear-gradient(135deg, #fef3e7 0%, #fde9d7 100%);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  letter-spacing: 1.5px;
+}
+
+.track-status-card__code .copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.track-status-card__code .copy-btn:hover {
+  background: #e5e7eb;
+  color: #8B4513;
+}
+
+.track-status-card__code .copy-btn.copied {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.track-status-card__order .value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #2c1810;
+}
+
+.track-status-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: #e5e7eb;
+  color: #8B4513;
+  transform: rotate(180deg);
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-icon {
+  font-size: 1rem;
+}
+
+.status-badge--default {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-badge--transit {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+}
+
+.status-badge--out {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.status-badge--warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.status-badge--success {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+}
+
+.status-badge--error {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+}
+
+/* Route Display */
+.track-status-card__route {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.route-point {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.route-point svg {
+  color: #8B4513;
+  flex-shrink: 0;
+}
+
+.route-point .route-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.route-point .route-value {
+  display: block;
+  font-weight: 600;
+  color: #2c1810;
+}
+
+.route-point--destination {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.route-point--destination div {
+  text-align: right;
+}
+
+.route-line {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.route-line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8B4513 0%, #c4956a 50%, #8B4513 100%);
+  border-radius: 2px;
+}
+
+.route-line svg {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  padding: 0.25rem;
+  color: #8B4513;
+}
+
+/* Progress Steps */
+.track-progress {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding-top: 0.5rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.progress-step__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: #9ca3af;
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s ease;
+  border: 3px solid #e5e7eb;
+}
+
+.progress-step.active .progress-step__icon {
+  background: linear-gradient(135deg, #c4956a 0%, #8B4513 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 8px 25px rgba(139, 69, 19, 0.4);
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.progress-step.done .progress-step__icon {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.3);
+  animation: none;
+}
+
+.progress-step__line {
+  position: absolute;
+  top: 26px;
+  left: calc(50% + 26px);
+  width: calc(100% - 52px);
+  height: 3px;
+  background: #e5e7eb;
+  z-index: 1;
+}
+
+.progress-step:last-child .progress-step__line {
+  display: none;
+}
+
+.progress-step.active .progress-step__line {
+  background: linear-gradient(90deg, #16a34a 0%, #e5e7eb 100%);
+}
+
+.progress-step.done .progress-step__line {
+  background: #16a34a;
+}
+
+.progress-step__content {
+  margin-top: 1rem;
+}
+
+.progress-step__content h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.progress-step__content p {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.progress-step.active .progress-step__content h4,
+.progress-step.done .progress-step__content h4 {
+  color: #2c1810;
+}
+
+.progress-step.active .progress-step__content p,
+.progress-step.done .progress-step__content p {
+  color: #6b7280;
+}
+
+/* History Timeline */
+.track-history {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.history-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.history-item {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  padding-bottom: 1.25rem;
+}
+
+.history-item:last-child {
+  padding-bottom: 0;
+}
+
+.history-item::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 44px;
+  bottom: 0;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+.history-item:last-child::before {
+  display: none;
+}
+
+.history-marker {
+  width: 42px;
+  height: 42px;
+  background: #f3f4f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.history-item--current .history-marker {
+  background: linear-gradient(135deg, #c4956a 0%, #8B4513 100%);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+}
+
+.history-icon {
+  font-size: 1.1rem;
+}
+
+.history-content {
+  flex: 1;
+  padding-top: 0.25rem;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.history-status {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.history-date {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.history-location {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.history-location svg {
+  color: #8B4513;
+}
+
+.history-details {
+  display: block;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* Recipient Section */
+.track-recipient {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.recipient-card {
+  background: linear-gradient(135deg, #f8f6f3 0%, #f3ede7 100%);
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+
+.recipient-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.recipient-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.recipient-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.recipient-value {
+  font-weight: 500;
+  color: #2c1810;
+}
+
+/* Responsive for new components */
+@media (max-width: 768px) {
+  .track-status-card__info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .track-status-card__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .track-status-card__status {
+    justify-content: flex-start;
+  }
+  
+  .track-status-card__route {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .route-point,
+  .route-point--destination {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  
+  .route-point--destination div {
+    text-align: left;
+  }
+  
+  .route-line {
+    width: 100%;
+    transform: rotate(90deg);
+    margin: 0.5rem 0;
+  }
+  
+  .progress-steps {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .progress-step {
+    flex-direction: row;
+    text-align: left;
+  }
+  
+  .progress-step__icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .progress-step__line {
+    position: absolute;
+    left: 21px;
+    top: 44px;
+    width: 3px;
+    height: calc(100% - 4px);
+  }
+  
+  .progress-step__content {
+    margin-top: 0;
+    margin-left: 1rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  .progress-step:last-child .progress-step__content {
+    padding-bottom: 0;
   }
 }

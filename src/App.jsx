@@ -34,6 +34,7 @@ import Customers from './admin/pages/Customers'
 import Reports from './admin/pages/Reports'
 import Settings from './admin/pages/Settings'
 import Analytics from './admin/pages/Analytics'
+import Tracking from './admin/pages/Tracking'
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
                         <Routes>
                           <Route index element={<Dashboard />} />
                           <Route path="pedidos" element={<Orders />} />
+                          <Route path="rastreamento" element={<Tracking />} />
                           <Route path="produtos" element={<Products />} />
                           <Route path="clientes" element={<Customers />} />
                           <Route path="relatorios" element={<Reports />} />
