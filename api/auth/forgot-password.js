@@ -89,9 +89,16 @@ export default async function handler(req, res) {
     // Enviar email com código usando SDK da Resend
     const RESEND_API_KEY = process.env.RESEND_API_KEY
     
+    // Debug: verificar API key
+    console.log('RESEND_API_KEY exists:', !!RESEND_API_KEY)
+    console.log('RESEND_API_KEY prefix:', RESEND_API_KEY ? RESEND_API_KEY.substring(0, 10) + '...' : 'N/A')
+    
     if (RESEND_API_KEY) {
       try {
         const resend = new Resend(RESEND_API_KEY)
+        
+        console.log('Sending email to:', user.email)
+        console.log('From domain:', 'domacriolacaixastermicaspersonalizadas.site')
         
         const { data, error: emailError } = await resend.emails.send({
           from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
