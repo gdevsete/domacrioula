@@ -287,29 +287,67 @@ export const AnalyticsProvider = ({ children }) => {
   const firePixelEvent = useCallback((eventName, eventData = {}) => {
     const pixels = JSON.parse(localStorage.getItem(STORAGE_KEYS.PIXELS) || '{}')
     
+    // Gerar event_id único para deduplicação entre browser e servidor
+    const eventId = `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    
     // Facebook Pixel - sempre verificar window.fbq (carregado via index.html)
     if (window.fbq) {
       try {
+        // Adicionar eventID para deduplicação com CAPI
+        const pixelData = { ...eventData, eventID: eventId }
+        
         if (eventName === 'PageView') {
-          window.fbq('track', 'PageView')
+          window.fbq('track', 'PageView', {}, { eventID: eventId })
         } else if (eventName === 'AddToCart') {
-          window.fbq('track', 'AddToCart', eventData)
+          window.fbq('track', 'AddToCart', pixelData, { eventID: eventId })
         } else if (eventName === 'Purchase') {
-          window.fbq('track', 'Purchase', eventData)
+          window.fbq('track', 'Purchase', pixelData, { eventID: eventId })
         } else if (eventName === 'InitiateCheckout') {
-          window.fbq('track', 'InitiateCheckout', eventData)
+          window.fbq('track', 'InitiateCheckout', pixelData, { eventID: eventId })
         } else if (eventName === 'AddPaymentInfo') {
-          window.fbq('track', 'AddPaymentInfo', eventData)
+          window.fbq('track', 'AddPaymentInfo', pixelData, { eventID: eventId })
         } else if (eventName === 'Lead') {
-          window.fbq('track', 'Lead', eventData)
+          window.fbq('track', 'Lead', pixelData, { eventID: eventId })
         } else if (eventName === 'ViewContent') {
-          window.fbq('track', 'ViewContent', eventData)
+          window.fbq('track', 'ViewContent', pixelData, { eventID: eventId })
         } else {
-          window.fbq('trackCustom', eventName, eventData)
+          window.fbq('trackCustom', eventName, pixelData, { eventID: eventId })
         }
       } catch (e) {
         console.warn('Facebook Pixel error:', e)
       }
+    }
+    
+    // Facebook Conversions API (servidor) - funciona mesmo com bloqueadores
+    // Envia em paralelo e não bloqueia a UI
+    try {
+      // Obter fbp e fbc dos cookies se disponíveis
+      const getCookie = (name) => {
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) return parts.pop().split(';').shift()
+        return null
+      }
+      
+      const userData = {
+        fbp: getCookie('_fbp'),
+        fbc: getCookie('_fbc'),
+      }
+      
+      // Enviar para Conversions API em background
+      fetch('/api/meta/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName,
+          eventData,
+          userData,
+          eventSourceUrl: window.location.href,
+          eventId
+        })
+      }).catch(e => console.warn('CAPI error:', e))
+    } catch (e) {
+      console.warn('CAPI preparation error:', e)
     }
     
     // Google Analytics 4
