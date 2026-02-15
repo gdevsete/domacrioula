@@ -287,8 +287,8 @@ export const AnalyticsProvider = ({ children }) => {
   const firePixelEvent = useCallback((eventName, eventData = {}) => {
     const pixels = JSON.parse(localStorage.getItem(STORAGE_KEYS.PIXELS) || '{}')
     
-    // Facebook Pixel
-    if (pixels.facebookPixelId && window.fbq) {
+    // Facebook Pixel - sempre verificar window.fbq (carregado via index.html)
+    if (window.fbq) {
       try {
         if (eventName === 'PageView') {
           window.fbq('track', 'PageView')
@@ -416,24 +416,9 @@ export const AnalyticsProvider = ({ children }) => {
 
   // Injetar scripts de pixel no head
   const injectPixelScripts = useCallback((pixels) => {
-    // Facebook Pixel
-    if (pixels.facebookPixelId && !document.getElementById('fb-pixel-script')) {
-      const fbScript = document.createElement('script')
-      fbScript.id = 'fb-pixel-script'
-      fbScript.innerHTML = `
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '${pixels.facebookPixelId}');
-        fbq('track', 'PageView');
-      `
-      document.head.appendChild(fbScript)
-    }
+    // Facebook Pixel - já está no index.html, não precisa injetar novamente
+    // O pixel base é carregado pelo index.html com ID 26115865218048848
+    // Os eventos são disparados via window.fbq que já está disponível
     
     // Google Analytics 4
     if (pixels.googleAnalyticsId && !document.getElementById('ga-script')) {
