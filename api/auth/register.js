@@ -127,7 +127,7 @@ export default async function handler(req, res) {
         const resend = new Resend(RESEND_API_KEY)
         
         const { data: emailData, error: emailError } = await resend.emails.send({
-          from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
+          from: 'Doma Crioula <noreply@domacrioulacaixastermicaspersonalizadas.site>',
           to: [email.toLowerCase()],
           subject: 'Bem-vindo à Doma Crioula! 🎉',
           html: `
@@ -159,7 +159,7 @@ export default async function handler(req, res) {
                 </ul>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://domacriolacaixastermicaspersonalizadas.site/caixas-termicas" 
+                  <a href="https://domacrioulacaixastermicaspersonalizadas.site/caixas-termicas" 
                      style="background: #c45a3d; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                     Ver Produtos
                   </a>

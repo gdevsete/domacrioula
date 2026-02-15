@@ -98,10 +98,10 @@ export default async function handler(req, res) {
         const resend = new Resend(RESEND_API_KEY)
         
         console.log('Sending email to:', user.email)
-        console.log('From domain:', 'domacriolacaixastermicaspersonalizadas.site')
+        console.log('From domain:', 'domacrioulacaixastermicaspersonalizadas.site')
         
         const { data, error: emailError } = await resend.emails.send({
-          from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
+          from: 'Doma Crioula <noreply@domacrioulacaixastermicaspersonalizadas.site>',
           to: [user.email],
           subject: 'Código de Recuperação de Senha - Doma Crioula',
           html: `
