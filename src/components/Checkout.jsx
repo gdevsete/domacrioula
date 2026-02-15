@@ -3,6 +3,7 @@ import { X, User, Mail, Phone, FileText, MapPin, Copy, Check, Loader2, AlertCirc
 import { QRCodeSVG } from 'qrcode.react'
 import { createPixTransaction, getTransaction, formatCurrency } from '../services/podpayService'
 import { useAuth } from '../contexts/AuthContext'
+import { useAnalytics } from '../contexts/AnalyticsContext'
 import './Checkout.css'
 
 // Validador de CPF
@@ -212,6 +213,7 @@ const TESTIMONIALS = [
 
 const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
   const { user, isAuthenticated, addOrder, updateProfile } = useAuth()
+  const { trackEvent } = useAnalytics()
   const [step, setStep] = useState('form') // form, processing, pix, success, error
   const [docType, setDocType] = useState('cpf') // cpf ou cnpj
   const [loadingCEP, setLoadingCEP] = useState(false)
@@ -278,8 +280,27 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
           zipCode: ''
         })
       }
+      
+      // Disparar evento InitiateCheckout para os pixels
+      const isCartCheckout = product?.items && product.items.length > 0
+      const totalValue = product?.total || (product?.price * quantity)
+      const contentName = isCartCheckout 
+        ? product.items.map(item => item.name).join(', ')
+        : product?.name
+      const contentIds = isCartCheckout
+        ? product.items.map(item => item.id || item.name)
+        : [product?.id || product?.name]
+      
+      trackEvent('InitiateCheckout', {
+        content_name: contentName,
+        content_ids: contentIds,
+        content_type: 'product',
+        num_items: isCartCheckout ? product.items.reduce((acc, item) => acc + item.quantity, 0) : quantity,
+        value: totalValue,
+        currency: 'BRL'
+      })
     }
-  }, [isOpen, isAuthenticated, user])
+  }, [isOpen, isAuthenticated, user, product, quantity, trackEvent])
 
   // Rotação automática dos depoimentos
   useEffect(() => {
@@ -385,6 +406,30 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
                 console.error('Erro ao salvar pedido:', err)
               }
             }
+            
+            // Disparar evento Purchase para os pixels
+            const isCartCheckout = product?.items && product.items.length > 0
+            const totalValue = product?.total || (product?.price * quantity)
+            const contentName = isCartCheckout 
+              ? product.items.map(item => item.name).join(', ')
+              : product?.name
+            const contentIds = isCartCheckout
+              ? product.items.map(item => item.id || item.name)
+              : [product?.id || product?.name]
+            const numItems = isCartCheckout 
+              ? product.items.reduce((acc, item) => acc + item.quantity, 0) 
+              : quantity
+            
+            trackEvent('Purchase', {
+              content_name: contentName,
+              content_ids: contentIds,
+              content_type: 'product',
+              num_items: numItems,
+              value: totalValue,
+              currency: 'BRL',
+              transaction_id: transaction.transactionId
+            })
+            
             setStep('success')
             clearInterval(interval)
           }
@@ -396,7 +441,7 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
       }, 5000) // Verifica a cada 5 segundos
     }
     return () => clearInterval(interval)
-  }, [step, transaction, orderSaved, addOrder, formData, product, quantity, isAuthenticated, updateProfile])
+  }, [step, transaction, orderSaved, addOrder, formData, product, quantity, isAuthenticated, updateProfile, trackEvent])
 
   const validateForm = () => {
     const newErrors = {}
@@ -517,6 +562,23 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
       const response = await createPixTransaction(transactionData)
       setTransaction(response)
       setStep('pix')
+      
+      // Disparar evento AddPaymentInfo para os pixels
+      const contentName = isCartCheckout 
+        ? product.items.map(item => item.name).join(', ')
+        : product?.name
+      const contentIds = isCartCheckout
+        ? product.items.map(item => item.id || item.name)
+        : [product?.id || product?.name]
+      
+      trackEvent('AddPaymentInfo', {
+        content_name: contentName,
+        content_ids: contentIds,
+        content_type: 'product',
+        value: amount,
+        currency: 'BRL',
+        payment_method: 'pix'
+      })
     } catch (error) {
       console.error('Erro ao criar transação:', error)
       setErrorMessage(error.message || 'Erro ao processar pagamento. Tente novamente.')

@@ -298,6 +298,8 @@ export const AnalyticsProvider = ({ children }) => {
           window.fbq('track', 'Purchase', eventData)
         } else if (eventName === 'InitiateCheckout') {
           window.fbq('track', 'InitiateCheckout', eventData)
+        } else if (eventName === 'AddPaymentInfo') {
+          window.fbq('track', 'AddPaymentInfo', eventData)
         } else if (eventName === 'Lead') {
           window.fbq('track', 'Lead', eventData)
         } else if (eventName === 'ViewContent') {
@@ -318,6 +320,7 @@ export const AnalyticsProvider = ({ children }) => {
           'AddToCart': 'add_to_cart',
           'Purchase': 'purchase',
           'InitiateCheckout': 'begin_checkout',
+          'AddPaymentInfo': 'add_payment_info',
           'ViewContent': 'view_item'
         }
         window.gtag('event', gaEventMap[eventName] || eventName, eventData)
