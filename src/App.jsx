@@ -39,9 +39,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <CartProvider>
-          <CheckoutProvider>
-            <AnalyticsProvider>
+        <AnalyticsProvider>
+          <CartProvider>
+            <CheckoutProvider>
               <AdminProvider>
                 <Routes>
                   {/* Admin Routes */}
@@ -92,9 +92,9 @@ function App() {
                   } />
                 </Routes>
               </AdminProvider>
-            </AnalyticsProvider>
-          </CheckoutProvider>
-        </CartProvider>
+            </CheckoutProvider>
+          </CartProvider>
+        </AnalyticsProvider>
       </AuthProvider>
     </Router>
   )
