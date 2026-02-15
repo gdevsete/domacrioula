@@ -36,6 +36,7 @@ import Settings from './admin/pages/Settings'
 import Analytics from './admin/pages/Analytics'
 import Tracking from './admin/pages/Tracking'
 import ReceiptGenerator from './admin/pages/ReceiptGenerator'
+import QuoteGenerator from './admin/pages/QuoteGenerator'
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
                           <Route path="relatorios" element={<Reports />} />
                           <Route path="analytics" element={<Analytics />} />
                           <Route path="recibos" element={<ReceiptGenerator />} />
+                          <Route path="orcamentos" element={<QuoteGenerator />} />
                           <Route path="configuracoes" element={<Settings />} />
                         </Routes>
                       </AdminLayout>

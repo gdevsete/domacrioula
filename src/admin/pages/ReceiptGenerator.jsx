@@ -350,6 +350,13 @@ const ReceiptGenerator = () => {
           <div className="preview-container">
             {/* Actual Receipt - This will be converted to PDF */}
             <div className="receipt-document" ref={receiptRef}>
+              {/* Carimbo PAGO */}
+              <div className="receipt-stamp">
+                <div className="stamp-company">DOMA CRIOULA</div>
+                <div className="stamp-pago">PAGO</div>
+                <div className="stamp-cnpj">CNPJ: 18.701.908/0001-98</div>
+              </div>
+
               {/* Receipt Header */}
               <div className="receipt-doc-header">
                 <div className="receipt-logo-section">
@@ -363,7 +370,7 @@ const ReceiptGenerator = () => {
                 <div className="receipt-company-info">
                   <h1>DOMA CRIOULA</h1>
                   <p>Caixas Térmicas & Produtos Personalizados</p>
-                  <p className="small">CNPJ: 00.000.000/0001-00</p>
+                  <p className="small">CNPJ: 18.701.908/0001-98</p>
                   <p className="small">Sapiranga - RS | contato@domacrioula.com.br</p>
                 </div>
               </div>
