@@ -94,7 +94,7 @@ export default async function handler(req, res) {
         const resend = new Resend(RESEND_API_KEY)
         
         const { data, error: emailError } = await resend.emails.send({
-          from: 'Doma Crioula <noreply@send.domacriolacaixastermicaspersonalizadas.site>',
+          from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
           to: [user.email],
           subject: 'Código de Recuperação de Senha - Doma Crioula',
           html: `
