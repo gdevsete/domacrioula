@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
@@ -85,67 +86,70 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erro ao gerar código' })
     }
 
-    // Enviar email com código
+    // Enviar email com código usando SDK da Resend
     const RESEND_API_KEY = process.env.RESEND_API_KEY
     
     if (RESEND_API_KEY) {
       try {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
-            to: [user.email],
-            subject: 'Código de Recuperação de Senha - Doma Crioula',
-            html: `
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              </head>
-              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: linear-gradient(135deg, #c45a3d 0%, #2c1810 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-                  <h1 style="color: white; margin: 0; font-size: 28px;">Doma Crioula</h1>
-                  <p style="color: #f0d9c0; margin: 10px 0 0; font-size: 14px;">Recuperação de Senha</p>
+        const resend = new Resend(RESEND_API_KEY)
+        
+        const { data, error: emailError } = await resend.emails.send({
+          from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
+          to: [user.email],
+          subject: 'Código de Recuperação de Senha - Doma Crioula',
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #c45a3d 0%, #2c1810 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">Doma Crioula</h1>
+                <p style="color: #f0d9c0; margin: 10px 0 0; font-size: 14px;">Recuperação de Senha</p>
+              </div>
+              
+              <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+                <h2 style="color: #2c1810; margin-top: 0;">Olá, ${user.name || 'Cliente'}!</h2>
+                
+                <p>Recebemos uma solicitação para redefinir sua senha.</p>
+                
+                <p>Use o código abaixo para continuar:</p>
+                
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                  <span style="font-size: 32px; font-weight: bold; color: #c45a3d; letter-spacing: 8px;">${code}</span>
                 </div>
                 
-                <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
-                  <h2 style="color: #2c1810; margin-top: 0;">Olá, ${user.name || 'Cliente'}!</h2>
-                  
-                  <p>Recebemos uma solicitação para redefinir sua senha.</p>
-                  
-                  <p>Use o código abaixo para continuar:</p>
-                  
-                  <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                    <span style="font-size: 32px; font-weight: bold; color: #c45a3d; letter-spacing: 8px;">${code}</span>
-                  </div>
-                  
-                  <p style="color: #666; font-size: 14px;">
-                    <strong>Este código expira em 15 minutos.</strong>
-                  </p>
-                  
-                  <p style="color: #666; font-size: 14px;">
-                    Se você não solicitou a redefinição de senha, ignore este email.
-                  </p>
-                </div>
+                <p style="color: #666; font-size: 14px;">
+                  <strong>Este código expira em 15 minutos.</strong>
+                </p>
                 
-                <div style="background: #2c1810; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
-                  <p style="color: #f0d9c0; margin: 0; font-size: 12px;">
-                    © 2026 Doma Crioula - Todos os direitos reservados
-                  </p>
-                </div>
-              </body>
-              </html>
-            `
-          })
+                <p style="color: #666; font-size: 14px;">
+                  Se você não solicitou a redefinição de senha, ignore este email.
+                </p>
+              </div>
+              
+              <div style="background: #2c1810; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
+                <p style="color: #f0d9c0; margin: 0; font-size: 12px;">
+                  © 2026 Doma Crioula - Todos os direitos reservados
+                </p>
+              </div>
+            </body>
+            </html>
+          `
         })
-      } catch (emailError) {
-        console.error('Error sending email:', emailError)
+
+        if (emailError) {
+          console.error('Resend error:', emailError)
+        } else {
+          console.log('Email sent successfully:', data)
+        }
+      } catch (emailErr) {
+        console.error('Error sending email:', emailErr)
       }
+    } else {
+      console.error('RESEND_API_KEY not configured')
     }
 
     return res.status(200).json({ 

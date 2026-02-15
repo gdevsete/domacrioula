@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
@@ -123,69 +124,69 @@ export default async function handler(req, res) {
     const RESEND_API_KEY = process.env.RESEND_API_KEY
     if (RESEND_API_KEY) {
       try {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
-            to: [email.toLowerCase()],
-            subject: 'Bem-vindo à Doma Crioula! 🎉',
-            html: `
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              </head>
-              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: linear-gradient(135deg, #c45a3d 0%, #2c1810 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-                  <h1 style="color: white; margin: 0; font-size: 28px;">Doma Crioula</h1>
-                  <p style="color: #f0d9c0; margin: 10px 0 0; font-size: 14px;">Tradição em Churrasco</p>
+        const resend = new Resend(RESEND_API_KEY)
+        
+        const { data: emailData, error: emailError } = await resend.emails.send({
+          from: 'Doma Crioula <noreply@domacriolacaixastermicaspersonalizadas.site>',
+          to: [email.toLowerCase()],
+          subject: 'Bem-vindo à Doma Crioula! 🎉',
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #c45a3d 0%, #2c1810 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">Doma Crioula</h1>
+                <p style="color: #f0d9c0; margin: 10px 0 0; font-size: 14px;">Tradição em Churrasco</p>
+              </div>
+              
+              <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+                <h2 style="color: #2c1810; margin-top: 0;">Olá, ${name}! 👋</h2>
+                
+                <p>Seja muito bem-vindo(a) à <strong>Doma Crioula</strong>!</p>
+                
+                <p>Estamos muito felizes em ter você conosco. Agora você faz parte de uma comunidade apaixonada por churrasco de qualidade.</p>
+                
+                <p>Com sua conta, você pode:</p>
+                <ul style="color: #555;">
+                  <li>Acompanhar seus pedidos em tempo real</li>
+                  <li>Salvar seus endereços de entrega</li>
+                  <li>Receber ofertas exclusivas</li>
+                  <li>Personalizar suas caixas térmicas</li>
+                </ul>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="https://domacriolacaixastermicaspersonalizadas.site/caixas-termicas" 
+                     style="background: #c45a3d; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                    Ver Produtos
+                  </a>
                 </div>
                 
-                <div style="background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
-                  <h2 style="color: #2c1810; margin-top: 0;">Olá, ${name}! 👋</h2>
-                  
-                  <p>Seja muito bem-vindo(a) à <strong>Doma Crioula</strong>!</p>
-                  
-                  <p>Estamos muito felizes em ter você conosco. Agora você faz parte de uma comunidade apaixonada por churrasco de qualidade.</p>
-                  
-                  <p>Com sua conta, você pode:</p>
-                  <ul style="color: #555;">
-                    <li>Acompanhar seus pedidos em tempo real</li>
-                    <li>Salvar seus endereços de entrega</li>
-                    <li>Receber ofertas exclusivas</li>
-                    <li>Personalizar suas caixas térmicas</li>
-                  </ul>
-                  
-                  <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://domacriolacaixastermicaspersonalizadas.site/caixas-termicas" 
-                       style="background: #c45a3d; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                      Ver Produtos
-                    </a>
-                  </div>
-                  
-                  <p style="color: #666; font-size: 14px;">
-                    Se tiver alguma dúvida, estamos à disposição pelo WhatsApp ou email.
-                  </p>
-                </div>
-                
-                <div style="background: #2c1810; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
-                  <p style="color: #f0d9c0; margin: 0; font-size: 12px;">
-                    © 2026 Doma Crioula - Todos os direitos reservados
-                  </p>
-                </div>
-              </body>
-              </html>
-            `
-          })
+                <p style="color: #666; font-size: 14px;">
+                  Se tiver alguma dúvida, estamos à disposição pelo WhatsApp ou email.
+                </p>
+              </div>
+              
+              <div style="background: #2c1810; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
+                <p style="color: #f0d9c0; margin: 0; font-size: 12px;">
+                  © 2026 Doma Crioula - Todos os direitos reservados
+                </p>
+              </div>
+            </body>
+            </html>
+          `
         })
-        console.log('Welcome email sent to:', email)
-      } catch (emailError) {
-        console.error('Welcome email error:', emailError)
+        
+        if (emailError) {
+          console.error('Welcome email error:', emailError)
+        } else {
+          console.log('Welcome email sent to:', email, emailData)
+        }
+      } catch (emailErr) {
+        console.error('Welcome email error:', emailErr)
         // Não bloquear o registro se o email falhar
       }
     }
