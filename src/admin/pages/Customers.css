@@ -78,6 +78,19 @@
   table-layout: fixed;
 }
 
+.customers-table thead,
+.customers-table tbody {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.customers-table thead tr,
+.customers-table tbody tr {
+  display: table-row;
+  width: 100%;
+}
+
 /* Column widths - total 100% */
 .customers-table th:nth-child(1),
 .customers-table td:nth-child(1) { width: 22%; } /* Cliente */

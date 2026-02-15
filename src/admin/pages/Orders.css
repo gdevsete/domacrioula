@@ -178,9 +178,9 @@
 
 /* Table Container */
 .orders-table-container {
-  background: var(--admin-card-bg);
+  background: var(--admin-card);
   border: 1px solid var(--admin-border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -196,19 +196,33 @@
 }
 
 /* Data Table */
-.data-table {
+.orders-table-container .data-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
-.data-table th,
-.data-table td {
+.orders-table-container .data-table thead,
+.orders-table-container .data-table tbody {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.orders-table-container .data-table thead tr,
+.orders-table-container .data-table tbody tr {
+  display: table-row;
+  width: 100%;
+}
+
+.orders-table-container .data-table th,
+.orders-table-container .data-table td {
   padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid var(--admin-border);
 }
 
-.data-table th {
+.orders-table-container .data-table th {
   font-size: 12px;
   font-weight: 600;
   color: var(--admin-text-muted);
@@ -219,15 +233,15 @@
   top: 0;
 }
 
-.data-table tr:last-child td {
+.orders-table-container .data-table tr:last-child td {
   border-bottom: none;
 }
 
-.data-table tbody tr {
+.orders-table-container .data-table tbody tr {
   transition: var(--transition);
 }
 
-.data-table tbody tr:hover {
+.orders-table-container .data-table tbody tr:hover {
   background: var(--admin-bg);
 }
 

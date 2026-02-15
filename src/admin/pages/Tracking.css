@@ -214,6 +214,19 @@
   table-layout: fixed;
 }
 
+.tracking-table thead,
+.tracking-table tbody {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.tracking-table thead tr,
+.tracking-table tbody tr {
+  display: table-row;
+  width: 100%;
+}
+
 /* Column widths = 100% */
 .tracking-table th:nth-child(1),
 .tracking-table td:nth-child(1) { width: 14%; } /* Código */
