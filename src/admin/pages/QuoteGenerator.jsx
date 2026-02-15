@@ -6,6 +6,7 @@ const QuoteGenerator = () => {
   const { addNotification } = useAdmin()
   const quoteRef = useRef(null)
   const [loading, setLoading] = useState(false)
+  const [discountApplied, setDiscountApplied] = useState(false)
   
   const [formData, setFormData] = useState({
     customerName: '',
@@ -107,6 +108,37 @@ const QuoteGenerator = () => {
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + calculateItemTotal(item), 0)
+  }
+
+  const getTotalQuantity = () => {
+    return items.reduce((sum, item) => {
+      if (item.description.trim() && parseInt(item.unitValue || 0) > 0) {
+        return sum + item.quantity
+      }
+      return sum
+    }, 0)
+  }
+
+  const canApplyDiscount = () => {
+    return getTotalQuantity() >= 3
+  }
+
+  const calculateDiscountedTotal = () => {
+    if (discountApplied && canApplyDiscount()) {
+      return calculateTotal() * 0.8 // 20% off
+    }
+    return calculateTotal()
+  }
+
+  const toggleDiscount = () => {
+    if (!canApplyDiscount()) {
+      addNotification('warning', 'Atenção', 'Desconto disponível apenas para 3 ou mais unidades')
+      return
+    }
+    setDiscountApplied(!discountApplied)
+    if (!discountApplied) {
+      addNotification('success', 'Desconto Aplicado', '20% de desconto aplicado com sucesso!')
+    }
   }
 
   const formatDateBR = (dateStr) => {
@@ -413,6 +445,73 @@ const QuoteGenerator = () => {
               <span className="total-label">TOTAL DO ORÇAMENTO:</span>
               <span className="total-value">{formatCurrency((total * 100).toString())}</span>
             </div>
+
+            {/* Discount Section */}
+            <div className="discount-section">
+              <div className="discount-info">
+                <div className="discount-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 14l6-6"/>
+                    <circle cx="9.5" cy="9.5" r="1.5"/>
+                    <circle cx="14.5" cy="14.5" r="1.5"/>
+                    <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+                  </svg>
+                  <span>20% OFF</span>
+                </div>
+                <p className="discount-description">
+                  Desconto especial para compras de <strong>3 ou mais</strong> caixas térmicas!
+                </p>
+              </div>
+              
+              <div className="discount-status">
+                <span className={`quantity-indicator ${canApplyDiscount() ? 'eligible' : ''}`}>
+                  {getTotalQuantity()} {getTotalQuantity() === 1 ? 'unidade' : 'unidades'}
+                  {canApplyDiscount() && ' - Elegível!'}
+                </span>
+                
+                <button
+                  type="button"
+                  className={`btn-discount ${discountApplied ? 'applied' : ''} ${!canApplyDiscount() ? 'disabled' : ''}`}
+                  onClick={toggleDiscount}
+                  disabled={!canApplyDiscount()}
+                >
+                  {discountApplied ? (
+                    <>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                      Desconto Aplicado
+                    </>
+                  ) : (
+                    <>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 14l6-6"/>
+                        <circle cx="9.5" cy="9.5" r="1.5"/>
+                        <circle cx="14.5" cy="14.5" r="1.5"/>
+                      </svg>
+                      Aplicar 20% de Desconto
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {discountApplied && canApplyDiscount() && (
+                <div className="discount-result">
+                  <div className="original-price">
+                    <span className="label">Valor Original:</span>
+                    <span className="value strikethrough">{formatCurrency((total * 100).toString())}</span>
+                  </div>
+                  <div className="discount-amount">
+                    <span className="label">Desconto (20%):</span>
+                    <span className="value discount">- {formatCurrency((total * 0.2 * 100).toString())}</span>
+                  </div>
+                  <div className="final-price">
+                    <span className="label">VALOR FINAL:</span>
+                    <span className="value">{formatCurrency((calculateDiscountedTotal() * 100).toString())}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Conditions Section */}
@@ -601,10 +700,27 @@ const QuoteGenerator = () => {
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr>
-                      <td colSpan="4" className="total-label">VALOR TOTAL</td>
-                      <td className="total-value">{formatCurrency((total * 100).toString())}</td>
-                    </tr>
+                    {discountApplied && canApplyDiscount() ? (
+                      <>
+                        <tr className="subtotal-row">
+                          <td colSpan="4" className="subtotal-label">Subtotal</td>
+                          <td className="subtotal-value">{formatCurrency((total * 100).toString())}</td>
+                        </tr>
+                        <tr className="discount-row">
+                          <td colSpan="4" className="discount-label">Desconto (20% - 3+ unidades)</td>
+                          <td className="discount-value">- {formatCurrency((total * 0.2 * 100).toString())}</td>
+                        </tr>
+                        <tr className="final-total-row">
+                          <td colSpan="4" className="total-label">VALOR FINAL</td>
+                          <td className="total-value final">{formatCurrency((calculateDiscountedTotal() * 100).toString())}</td>
+                        </tr>
+                      </>
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="total-label">VALOR TOTAL</td>
+                        <td className="total-value">{formatCurrency((total * 100).toString())}</td>
+                      </tr>
+                    )}
                   </tfoot>
                 </table>
               </div>
