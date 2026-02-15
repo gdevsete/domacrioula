@@ -13,7 +13,7 @@
    ========================================= */
 .track-hero {
   position: relative;
-  padding: 4rem 1.5rem 3rem;
+  padding: 7rem 1.5rem 3rem;
   background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #5d3a22 100%);
   overflow: hidden;
 }
@@ -1048,7 +1048,7 @@
 /* Tablet */
 @media (max-width: 768px) {
   .track-hero {
-    padding: 2.5rem 1rem 2rem;
+    padding: 6rem 1rem 2rem;
   }
   
   .track-info {
@@ -1161,7 +1161,7 @@
 
 @media (max-width: 480px) {
   .track-hero {
-    padding: 2.5rem 0.75rem 3.5rem;
+    padding: 5.5rem 0.75rem 2rem;
   }
 
   .track-hero__icon {
