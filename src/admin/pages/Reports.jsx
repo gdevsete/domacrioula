@@ -11,9 +11,9 @@ const Reports = () => {
     generateReport()
   }, [period])
 
-  const generateReport = () => {
+  const generateReport = async () => {
     const orders = getOrders()
-    const customers = getCustomers()
+    const customers = await getCustomers()
     const stats = getStats()
 
     // Determinar período
