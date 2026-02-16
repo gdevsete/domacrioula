@@ -104,9 +104,17 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Erro ao buscar produtos' })
       }
 
+      // Mapear campos do banco para o frontend
+      const mappedProducts = (products || []).map(p => ({
+        ...p,
+        active: p.active ?? p.in_stock ?? true,
+        stock: p.stock ?? p.stock_quantity ?? 0,
+        image: p.image || (p.images && p.images[0]) || '',
+      }))
+
       return res.status(200).json({ 
-        products: products || [],
-        total: products?.length || 0
+        products: mappedProducts,
+        total: mappedProducts.length
       })
 
     } catch (error) {

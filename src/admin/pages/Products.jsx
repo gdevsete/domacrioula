@@ -10,6 +10,7 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState('all')
 
   const [formData, setFormData] = useState({
     name: '',
@@ -144,11 +145,23 @@ const Products = () => {
     }
   }
 
-  const filteredProducts = products.filter(p =>
-    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory
+    
+    return matchesSearch && matchesCategory
+  })
+
+  // Agrupar produtos por categoria para exibição
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
+    const cat = product.category || 'outros'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(product)
+    return acc
+  }, {})
 
   const getCategoryLabel = (value) => {
     const category = categories.find(c => c.value === value)
@@ -188,11 +201,21 @@ const Products = () => {
           </svg>
           <input
             type="text"
-            placeholder="Buscar produtos por nome, SKU ou categoria..."
+            placeholder="Buscar produtos por nome, SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <select 
+          className="category-filter"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="all">Todas as Categorias</option>
+          {categories.map(cat => (
+            <option key={cat.value} value={cat.value}>{cat.label}</option>
+          ))}
+        </select>
         <div className="products-count">
           <span>{filteredProducts.length}</span> produtos
         </div>
@@ -206,61 +229,132 @@ const Products = () => {
             <span>Carregando produtos...</span>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="products-grid">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className={`product-card ${!product.active ? 'inactive' : ''}`}>
-                <div className="product-image">
-                  {product.image ? (
-                    <img src={product.image} alt={product.name} />
-                  ) : (
-                    <div className="no-image">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21,15 16,10 5,21"/>
-                      </svg>
+          <div className="products-by-category">
+            {selectedCategory === 'all' ? (
+              // Mostrar agrupado por categoria
+              Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+                <div key={category} className="category-group">
+                  <h2 className="category-title">
+                    <span>{getCategoryLabel(category)}</span>
+                    <span className="category-count">{categoryProducts.length} produtos</span>
+                  </h2>
+                  <div className="products-grid">
+                    {categoryProducts.map((product) => (
+                      <div key={product.id} className={`product-card ${!product.active ? 'inactive' : ''}`}>
+                        <div className="product-image">
+                          {(product.image || product.images?.[0]) ? (
+                            <img src={product.image || product.images?.[0]} alt={product.name} />
+                          ) : (
+                            <div className="no-image">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21,15 16,10 5,21"/>
+                              </svg>
+                            </div>
+                          )}
+                          {product.featured && (
+                            <span className="badge featured">Destaque</span>
+                          )}
+                          {!product.active && (
+                            <span className="badge inactive">Inativo</span>
+                          )}
+                        </div>
+                        <div className="product-info">
+                          <h3 className="product-name">{product.name}</h3>
+                          <div className="product-pricing">
+                            {product.originalPrice > product.price && (
+                              <span className="original-price">{formatCurrency(product.originalPrice || product.original_price)}</span>
+                            )}
+                            <span className="current-price">{formatCurrency(product.price)}</span>
+                          </div>
+                          <div className="product-meta">
+                            {product.sku && <span className="sku">SKU: {product.sku}</span>}
+                            <span className="stock">
+                              Estoque: {product.stock || product.stock_quantity || 0}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="product-actions">
+                          <button className="btn-edit" onClick={() => handleEditProduct(product)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Editar
+                          </button>
+                          <button className="btn-delete" onClick={() => setDeleteConfirm(product.id)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="3,6 5,6 21,6"/>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              // Mostrar apenas categoria selecionada
+              <div className="products-grid">
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className={`product-card ${!product.active ? 'inactive' : ''}`}>
+                    <div className="product-image">
+                      {(product.image || product.images?.[0]) ? (
+                        <img src={product.image || product.images?.[0]} alt={product.name} />
+                      ) : (
+                        <div className="no-image">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21,15 16,10 5,21"/>
+                          </svg>
+                        </div>
+                      )}
+                      {product.featured && (
+                        <span className="badge featured">Destaque</span>
+                      )}
+                      {!product.active && (
+                        <span className="badge inactive">Inativo</span>
+                      )}
                     </div>
-                  )}
-                  {product.featured && (
-                    <span className="badge featured">Destaque</span>
-                  )}
-                  {!product.active && (
-                    <span className="badge inactive">Inativo</span>
-                  )}
-                </div>
-                <div className="product-info">
-                  <span className="product-category">{getCategoryLabel(product.category)}</span>
-                  <h3 className="product-name">{product.name}</h3>
-                  <div className="product-pricing">
-                    {product.originalPrice > product.price && (
-                      <span className="original-price">{formatCurrency(product.originalPrice)}</span>
-                    )}
-                    <span className="current-price">{formatCurrency(product.price)}</span>
+                    <div className="product-info">
+                      <span className="product-category">{getCategoryLabel(product.category)}</span>
+                      <h3 className="product-name">{product.name}</h3>
+                      <div className="product-pricing">
+                        {product.originalPrice > product.price && (
+                          <span className="original-price">{formatCurrency(product.originalPrice || product.original_price)}</span>
+                        )}
+                        <span className="current-price">{formatCurrency(product.price)}</span>
+                      </div>
+                      <div className="product-meta">
+                        {product.sku && <span className="sku">SKU: {product.sku}</span>}
+                        <span className="stock">
+                          Estoque: {product.stock || product.stock_quantity || 0}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="product-actions">
+                      <button className="btn-edit" onClick={() => handleEditProduct(product)}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Editar
+                      </button>
+                      <button className="btn-delete" onClick={() => setDeleteConfirm(product.id)}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3,6 5,6 21,6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <div className="product-meta">
-                    {product.sku && <span className="sku">SKU: {product.sku}</span>}
-                    <span className="stock">
-                      Estoque: {product.stock || 0}
-                    </span>
-                  </div>
-                </div>
-                <div className="product-actions">
-                  <button className="btn-edit" onClick={() => handleEditProduct(product)}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                    Editar
-                  </button>
-                  <button className="btn-delete" onClick={() => setDeleteConfirm(product.id)}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="3,6 5,6 21,6"/>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
+          </div>
           </div>
         ) : (
           <div className="empty-state">
