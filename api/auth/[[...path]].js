@@ -657,9 +657,22 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true })
   }
 
-  // Determinar a rota pelo path
-  const pathParts = req.query.path || []
-  const route = pathParts[0] || ''
+  // Determinar a rota pelo path - parsear da URL diretamente
+  let route = ''
+  
+  // Tentar pegar do query.path primeiro
+  if (req.query.path && Array.isArray(req.query.path) && req.query.path.length > 0) {
+    route = req.query.path[0]
+  } else if (req.query.path && typeof req.query.path === 'string') {
+    route = req.query.path
+  } else {
+    // Fallback: parsear da URL diretamente
+    const url = req.url || ''
+    const match = url.match(/\/api\/auth\/([^?/]+)/)
+    if (match) {
+      route = match[1]
+    }
+  }
 
   switch (route) {
     case 'login':
