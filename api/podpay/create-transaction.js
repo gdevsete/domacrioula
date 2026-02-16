@@ -151,6 +151,33 @@ export default async function handler(req, res) {
     // Calcular data de expiração (1 hora a partir de agora)
     const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString()
 
+    // Enviar notificação ao admin via WhatsApp
+    try {
+      const adminWhatsapp = process.env.ADMIN_WHATSAPP || '5551998137009'
+      const itemsList = items.map(i => `• ${i.title || i.name} (${i.quantity}x)`).join('\n')
+      const totalFormatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount / 100)
+      
+      const message = `🛒 *NOVO PIX GERADO!*\n\n` +
+        `👤 *Cliente:* ${customer.name || 'Não informado'}\n` +
+        `📱 *WhatsApp:* ${customer.phone || 'Não informado'}\n` +
+        `📧 *Email:* ${customer.email}\n\n` +
+        `📦 *Produtos:*\n${itemsList}\n\n` +
+        `💰 *Total:* ${totalFormatted}\n\n` +
+        `⏳ Aguardando pagamento...`
+
+      // Enviar via API de notificação (não bloquear se falhar)
+      fetch(`${req.headers.origin || 'https://www.domacrioulacaixastermicaspersonalizadas.site'}/api/notify/whatsapp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: adminWhatsapp,
+          data: { message }
+        })
+      }).catch(err => console.error('[Notify] WhatsApp error:', err))
+    } catch (notifyError) {
+      console.error('[Notify] Error sending notification:', notifyError)
+    }
+
     // Retornar dados da transação - tentar múltiplos caminhos possíveis
     const pixData = data.pix || {}
     return res.status(200).json({
