@@ -266,6 +266,130 @@
   height: 18px;
 }
 
+.btn-delete {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-bg);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--admin-text-muted);
+  transition: all var(--transition-fast);
+  margin-left: 8px;
+}
+
+.btn-delete:hover {
+  background: var(--admin-danger, #ef4444);
+  color: white;
+}
+
+.btn-delete svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Delete Modal */
+.delete-modal {
+  max-width: 480px;
+}
+
+.delete-modal .modal-header h2 {
+  color: var(--admin-danger, #ef4444);
+}
+
+.delete-warning {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--admin-danger, #ef4444);
+}
+
+.delete-warning > svg {
+  width: 32px;
+  height: 32px;
+  color: var(--admin-danger, #ef4444);
+  flex-shrink: 0;
+}
+
+.delete-warning p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--admin-text);
+}
+
+.delete-warning .warning-text {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin-bottom: 0;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--admin-bg);
+  border-top: 1px solid var(--admin-border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-md);
+  color: var(--admin-text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--admin-bg);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-confirm-delete {
+  padding: 10px 20px;
+  background: var(--admin-danger, #ef4444);
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.btn-confirm-delete:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn-confirm-delete:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 /* Customer Modal */
 .customer-modal {
   max-width: 640px;

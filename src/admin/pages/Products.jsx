@@ -38,9 +38,9 @@ const Products = () => {
     loadProducts()
   }, [])
 
-  const loadProducts = () => {
+  const loadProducts = async () => {
     setLoading(true)
-    const data = getProducts()
+    const data = await getProducts()
     setProducts(data)
     setLoading(false)
   }
@@ -106,7 +106,7 @@ const Products = () => {
     setShowModal(true)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!formData.name || !formData.price) {
@@ -129,17 +129,17 @@ const Products = () => {
       productData.id = editingProduct.id
     }
 
-    const success = saveProduct(productData)
+    const success = await saveProduct(productData)
     if (success) {
-      loadProducts()
+      await loadProducts()
       setShowModal(false)
     }
   }
 
-  const handleDelete = (productId) => {
-    const success = deleteProduct(productId)
+  const handleDelete = async (productId) => {
+    const success = await deleteProduct(productId)
     if (success) {
-      loadProducts()
+      await loadProducts()
       setDeleteConfirm(null)
     }
   }

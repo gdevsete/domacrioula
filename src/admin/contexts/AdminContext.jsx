@@ -417,37 +417,85 @@ export const AdminProvider = ({ children }) => {
     }
   }, [])
 
-  // Obter produtos
-  const getProducts = useCallback(() => {
+  // Deletar cliente do servidor
+  const deleteCustomer = useCallback(async (customerId) => {
     try {
-      return JSON.parse(localStorage.getItem(ADMIN_STORAGE_KEYS.PRODUCTS_DB) || '[]')
-    } catch {
+      const token = localStorage.getItem(ADMIN_STORAGE_KEYS.ADMIN_TOKEN)
+      if (!token) return false
+
+      const response = await fetch(`/api/auth/customers?id=${customerId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        addNotification({
+          type: 'error',
+          title: 'Erro ao deletar',
+          message: error.error || 'Erro ao deletar cliente'
+        })
+        return false
+      }
+
+      addNotification({
+        type: 'success',
+        title: 'Cliente deletado',
+        message: 'Cliente foi removido com sucesso'
+      })
+      
+      return true
+    } catch (error) {
+      console.error('Erro ao deletar cliente:', error)
+      return false
+    }
+  }, [addNotification])
+
+  // Obter produtos do servidor
+  const getProducts = useCallback(async () => {
+    try {
+      const response = await fetch('/api/products')
+      
+      if (!response.ok) {
+        console.error('Erro ao buscar produtos')
+        return []
+      }
+
+      const data = await response.json()
+      return data.products || []
+    } catch (error) {
+      console.error('Erro ao buscar produtos:', error)
       return []
     }
   }, [])
 
-  // Salvar produto
-  const saveProduct = useCallback((product) => {
+  // Salvar produto no servidor
+  const saveProduct = useCallback(async (product) => {
     try {
-      const products = getProducts()
-      
-      if (product.id) {
-        // Atualizar existente
-        const index = products.findIndex(p => p.id === product.id)
-        if (index !== -1) {
-          products[index] = { ...products[index], ...product, updatedAt: new Date().toISOString() }
-        }
-      } else {
-        // Criar novo
-        products.push({
-          ...product,
-          id: 'prod_' + Date.now().toString(36),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+      const token = localStorage.getItem(ADMIN_STORAGE_KEYS.ADMIN_TOKEN)
+      if (!token) return false
+
+      const method = product.id ? 'PUT' : 'POST'
+      const response = await fetch('/api/products', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(product)
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        addNotification({
+          type: 'error',
+          title: 'Erro ao salvar',
+          message: error.error || 'Erro ao salvar produto'
         })
+        return false
       }
-      
-      localStorage.setItem(ADMIN_STORAGE_KEYS.PRODUCTS_DB, JSON.stringify(products))
       
       addNotification({
         type: 'success',
@@ -456,17 +504,34 @@ export const AdminProvider = ({ children }) => {
       })
       
       return true
-    } catch {
+    } catch (error) {
+      console.error('Erro ao salvar produto:', error)
       return false
     }
-  }, [getProducts, addNotification])
+  }, [addNotification])
 
-  // Excluir produto
-  const deleteProduct = useCallback((productId) => {
+  // Excluir produto no servidor
+  const deleteProduct = useCallback(async (productId) => {
     try {
-      let products = getProducts()
-      products = products.filter(p => p.id !== productId)
-      localStorage.setItem(ADMIN_STORAGE_KEYS.PRODUCTS_DB, JSON.stringify(products))
+      const token = localStorage.getItem(ADMIN_STORAGE_KEYS.ADMIN_TOKEN)
+      if (!token) return false
+
+      const response = await fetch(`/api/products?id=${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        addNotification({
+          type: 'error',
+          title: 'Erro ao excluir',
+          message: error.error || 'Erro ao excluir produto'
+        })
+        return false
+      }
       
       addNotification({
         type: 'success',
@@ -475,7 +540,8 @@ export const AdminProvider = ({ children }) => {
       })
       
       return true
-    } catch {
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error)
       return false
     }
   }, [getProducts, addNotification])
@@ -554,6 +620,7 @@ export const AdminProvider = ({ children }) => {
     getOrders,
     updateOrderStatus,
     getCustomers,
+    deleteCustomer,
     getProducts,
     saveProduct,
     deleteProduct,

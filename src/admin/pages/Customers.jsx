@@ -3,12 +3,14 @@ import { useAdmin } from '../contexts/AdminContext'
 import './Customers.css'
 
 const Customers = () => {
-  const { getCustomers, getOrders } = useAdmin()
+  const { getCustomers, getOrders, deleteCustomer } = useAdmin()
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState(null)
   const [customerOrders, setCustomerOrders] = useState([])
+  const [customerToDelete, setCustomerToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     loadCustomers()
@@ -83,6 +85,27 @@ const Customers = () => {
       return `${cleaned.slice(0, 2)}.${cleaned.slice(2, 5)}.${cleaned.slice(5, 8)}/${cleaned.slice(8, 12)}-${cleaned.slice(12)}`
     }
     return doc
+  }
+
+  const handleDeleteCustomer = async () => {
+    if (!customerToDelete) return
+    
+    setDeleting(true)
+    try {
+      const success = await deleteCustomer(customerToDelete.id)
+      if (success) {
+        // Recarregar lista após deletar
+        await loadCustomers()
+        setCustomerToDelete(null)
+      } else {
+        alert('Erro ao deletar cliente. Tente novamente.')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar cliente:', error)
+      alert('Erro ao deletar cliente. Tente novamente.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -190,6 +213,18 @@ const Customers = () => {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                           <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                      <button
+                        className="btn-delete"
+                        onClick={() => setCustomerToDelete(customer)}
+                        title="Excluir cliente"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          <line x1="10" y1="11" x2="10" y2="17"/>
+                          <line x1="14" y1="11" x2="14" y2="17"/>
                         </svg>
                       </button>
                     </td>
@@ -355,6 +390,64 @@ const Customers = () => {
                   <p className="no-orders">Nenhum pedido realizado ainda</p>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {customerToDelete && (
+        <div className="modal-overlay" onClick={() => !deleting && setCustomerToDelete(null)}>
+          <div className="modal-content delete-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Confirmar Exclusão</h2>
+              <button 
+                className="modal-close" 
+                onClick={() => setCustomerToDelete(null)}
+                disabled={deleting}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="delete-warning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <div>
+                  <p><strong>Tem certeza que deseja excluir este cliente?</strong></p>
+                  <p>Cliente: <strong>{customerToDelete.name || customerToDelete.email}</strong></p>
+                  <p className="warning-text">Esta ação é irreversível e removerá todos os dados do cliente.</p>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn-cancel" 
+                onClick={() => setCustomerToDelete(null)}
+                disabled={deleting}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-confirm-delete" 
+                onClick={handleDeleteCustomer}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <>
+                    <span className="spinner-small"></span>
+                    Excluindo...
+                  </>
+                ) : (
+                  'Excluir Cliente'
+                )}
+              </button>
             </div>
           </div>
         </div>

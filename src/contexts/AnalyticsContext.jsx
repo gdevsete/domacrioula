@@ -223,6 +223,9 @@ export const AnalyticsProvider = ({ children }) => {
       locationDataRef.current = await getVisitorData()
     }
     
+    const deviceInfo = getDeviceInfo()
+    const trafficSource = getTrafficSource()
+    
     const visit = {
       id: 'pv_' + Date.now().toString(36),
       timestamp: Date.now(),
@@ -232,13 +235,13 @@ export const AnalyticsProvider = ({ children }) => {
       page: pagePath || window.location.pathname,
       title: document.title,
       ...locationDataRef.current,
-      ...getDeviceInfo(),
-      ...getTrafficSource(),
+      ...deviceInfo,
+      ...trafficSource,
       hour: new Date().getHours(),
       dayOfWeek: new Date().getDay()
     }
     
-    // Salvar no localStorage
+    // Salvar no localStorage (backup)
     const visits = JSON.parse(localStorage.getItem(STORAGE_KEYS.VISITS) || '[]')
     visits.push(visit)
     
@@ -247,6 +250,34 @@ export const AnalyticsProvider = ({ children }) => {
     const filteredVisits = visits.filter(v => v.timestamp > thirtyDaysAgo)
     
     localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(filteredVisits))
+    
+    // Enviar para o servidor (não bloquear)
+    fetch('/api/analytics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'pageview',
+        data: {
+          visitorId: visit.visitorId,
+          sessionId: visit.sessionId,
+          page: visit.page,
+          title: visit.title,
+          referrer: document.referrer || '',
+          source: trafficSource.source,
+          medium: trafficSource.medium,
+          campaign: trafficSource.campaign,
+          city: locationDataRef.current?.city,
+          region: locationDataRef.current?.region,
+          country: locationDataRef.current?.country,
+          device: deviceInfo.device,
+          browser: deviceInfo.browser,
+          os: deviceInfo.os,
+          userAgent: navigator.userAgent,
+          hour: visit.hour,
+          dayOfWeek: visit.dayOfWeek
+        }
+      })
+    }).catch(e => console.warn('Analytics track error:', e))
     
     // Disparar pixels
     firePixelEvent('PageView', { page: pagePath })
@@ -276,6 +307,23 @@ export const AnalyticsProvider = ({ children }) => {
     const filteredEvents = events.filter(e => e.timestamp > thirtyDaysAgo)
     
     localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(filteredEvents))
+    
+    // Enviar para o servidor (não bloquear)
+    fetch('/api/analytics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'event',
+        data: {
+          visitorId: event.visitorId,
+          sessionId: event.sessionId,
+          eventName: event.eventName,
+          eventData: event.eventData,
+          page: event.page,
+          hour: event.hour
+        }
+      })
+    }).catch(e => console.warn('Analytics event error:', e))
     
     // Disparar pixels
     firePixelEvent(eventName, eventData)

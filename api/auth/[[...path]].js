@@ -369,10 +369,7 @@ async function handleMe(req, res) {
 
 // ==================== CUSTOMERS (Admin) ====================
 async function handleCustomers(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
+  // Validar admin token
   const authHeader = req.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Não autorizado' })
@@ -394,44 +391,88 @@ async function handleCustomers(req, res) {
     return res.status(500).json({ error: 'Service not configured' })
   }
 
-  try {
-    const { search } = req.query
+  // GET - Listar clientes
+  if (req.method === 'GET') {
+    try {
+      const { search } = req.query
 
-    let query = supabase
-      .from('users')
-      .select('id, email, name, phone, document, addresses, created_at')
-      .order('created_at', { ascending: false })
+      let query = supabase
+        .from('users')
+        .select('id, email, name, phone, document, addresses, created_at')
+        .order('created_at', { ascending: false })
 
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
+      }
+
+      const { data: customers, error } = await query
+
+      if (error) {
+        console.error('Error fetching customers:', error)
+        return res.status(500).json({ error: 'Erro ao buscar clientes' })
+      }
+
+      const formattedCustomers = customers.map(customer => ({
+        id: customer.id,
+        email: customer.email,
+        name: customer.name,
+        phone: customer.phone,
+        document: customer.document,
+        addresses: customer.addresses || [],
+        createdAt: customer.created_at
+      }))
+
+      return res.status(200).json({ 
+        customers: formattedCustomers,
+        total: formattedCustomers.length
+      })
+
+    } catch (error) {
+      console.error('Customers API error:', error)
+      return res.status(500).json({ error: 'Erro interno do servidor' })
     }
-
-    const { data: customers, error } = await query
-
-    if (error) {
-      console.error('Error fetching customers:', error)
-      return res.status(500).json({ error: 'Erro ao buscar clientes' })
-    }
-
-    const formattedCustomers = customers.map(customer => ({
-      id: customer.id,
-      email: customer.email,
-      name: customer.name,
-      phone: customer.phone,
-      document: customer.document,
-      addresses: customer.addresses || [],
-      createdAt: customer.created_at
-    }))
-
-    return res.status(200).json({ 
-      customers: formattedCustomers,
-      total: formattedCustomers.length
-    })
-
-  } catch (error) {
-    console.error('Customers API error:', error)
-    return res.status(500).json({ error: 'Erro interno do servidor' })
   }
+
+  // DELETE - Deletar cliente
+  if (req.method === 'DELETE') {
+    try {
+      const { id } = req.query
+
+      if (!id) {
+        return res.status(400).json({ error: 'ID do cliente é obrigatório' })
+      }
+
+      // Deletar da tabela users
+      const { error: userError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', id)
+
+      if (userError) {
+        console.error('Error deleting user from users:', userError)
+        return res.status(500).json({ error: 'Erro ao deletar cliente' })
+      }
+
+      // Deletar do Supabase Auth
+      const { error: authError } = await supabase.auth.admin.deleteUser(id)
+
+      if (authError) {
+        console.error('Error deleting user from auth:', authError)
+        // Não retornar erro pois o usuário já foi removido da tabela
+      }
+
+      return res.status(200).json({ 
+        success: true,
+        message: 'Cliente deletado com sucesso'
+      })
+
+    } catch (error) {
+      console.error('Delete customer error:', error)
+      return res.status(500).json({ error: 'Erro interno do servidor' })
+    }
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' })
 }
 
 // ==================== FORGOT PASSWORD ====================
@@ -647,7 +688,7 @@ export default async function handler(req, res) {
           'POST /api/auth/login',
           'POST /api/auth/register',
           'GET/PUT /api/auth/me',
-          'GET /api/auth/customers',
+          'GET/DELETE /api/auth/customers',
           'POST /api/auth/forgot-password',
           'POST /api/auth/reset-password'
         ]
