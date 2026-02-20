@@ -2,8 +2,12 @@
  * API de Analytics (Supabase)
  * 
  * Rotas:
- * - POST /api/analytics/track - Registrar visita/evento
- * - GET /api/analytics/summary - Obter resumo de analytics (admin)
+ * - POST /api/analytics?action=track - Registrar visita/evento
+ * - GET /api/analytics?action=summary - Obter resumo de analytics (admin)
+ * 
+ * Também suporta URLs diretas no frontend que não usam query params:
+ * - POST /api/analytics/track (via rewrite)
+ * - GET /api/analytics/summary (via rewrite)
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -318,9 +322,18 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Service not configured' })
   }
 
-  // Determinar a rota pelo path
-  const pathParts = req.query.path || []
-  const route = pathParts[0] || ''
+  // Determinar a rota pela URL ou query param
+  // Suporta: /api/analytics?action=track ou /api/analytics/track
+  let route = req.query.action || ''
+  
+  // Extrair da URL se não vier como query param
+  if (!route) {
+    const url = req.url || ''
+    const match = url.match(/\/api\/analytics\/([^?/]+)/)
+    if (match) {
+      route = match[1]
+    }
+  }
 
   switch (route) {
     case 'track':
