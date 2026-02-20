@@ -51,6 +51,11 @@ async function handleTrack(req, res, supabase) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // Se Supabase não estiver configurado, apenas aceitar (não bloquear o site)
+  if (!supabase) {
+    return res.status(200).json({ success: true, message: 'Analytics disabled (no database)' })
+  }
+
   try {
     const { type, data } = req.body
 
@@ -80,8 +85,12 @@ async function handleTrack(req, res, supabase) {
         .insert(visit)
 
       if (error) {
-        console.error('Error saving visit:', error)
-        return res.status(500).json({ error: 'Erro ao salvar visita' })
+        // Se tabela não existe, apenas logar e retornar sucesso
+        console.error('Error saving visit:', error.code, error.message)
+        if (error.code === '42P01') { // table does not exist
+          return res.status(200).json({ success: true, message: 'Analytics table not configured' })
+        }
+        return res.status(200).json({ success: true, warning: 'Could not save visit' })
       }
 
       return res.status(200).json({ success: true, type: 'pageview' })
@@ -102,18 +111,22 @@ async function handleTrack(req, res, supabase) {
         .insert(event)
 
       if (error) {
-        console.error('Error saving event:', error)
-        return res.status(500).json({ error: 'Erro ao salvar evento' })
+        console.error('Error saving event:', error.code, error.message)
+        if (error.code === '42P01') { // table does not exist
+          return res.status(200).json({ success: true, message: 'Analytics table not configured' })
+        }
+        return res.status(200).json({ success: true, warning: 'Could not save event' })
       }
 
       return res.status(200).json({ success: true, type: 'event' })
     }
 
-    return res.status(400).json({ error: 'Tipo inválido. Use "pageview" ou "event"' })
+    return res.status(200).json({ success: true, message: 'No action taken' })
 
   } catch (error) {
     console.error('Track error:', error)
-    return res.status(500).json({ error: 'Erro interno do servidor' })
+    // Não retornar 500 para não quebrar o site
+    return res.status(200).json({ success: true, warning: 'Analytics error' })
   }
 }
 
@@ -127,6 +140,31 @@ async function handleSummary(req, res, supabase) {
   const admin = validateAdminToken(req.headers.authorization)
   if (!admin) {
     return res.status(401).json({ error: 'Não autorizado' })
+  }
+
+  // Se Supabase não configurado, retornar dados vazios
+  if (!supabase) {
+    return res.status(200).json({
+      summary: {
+        uniqueVisitors: 0,
+        totalPageviews: 0,
+        uniqueSessions: 0,
+        avgSessionDuration: 0,
+        bounceRate: 0,
+        conversionRate: 0,
+        totalRevenue: 0,
+        averageOrderValue: 0
+      },
+      trafficBySource: [],
+      trafficByLocation: [],
+      trafficByDevice: [],
+      pageviews: [],
+      hourlyDistribution: [],
+      eventsByType: [],
+      recentVisits: [],
+      recentEvents: [],
+      message: 'Analytics not configured'
+    })
   }
 
   try {
@@ -318,9 +356,7 @@ export default async function handler(req, res) {
   }
 
   const supabase = getSupabase()
-  if (!supabase) {
-    return res.status(500).json({ error: 'Service not configured' })
-  }
+  // Não retornar erro 500 se Supabase não configurado - handleTrack vai lidar com isso
 
   // Determinar a rota pela URL ou query param
   // Suporta: /api/analytics?action=track ou /api/analytics/track
