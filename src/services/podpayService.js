@@ -35,7 +35,7 @@ const getApiUrl = () => {
  *   items: [{ title: 'Caixa Térmica 30L', unitPrice: 22999, quantity: 1 }]
  * })
  */
-export const createPixTransaction = async ({ amount, customer, items, pix }) => {
+export const createPixTransaction = async ({ amount, customer, items, pix, shippingAddress }) => {
   const apiUrl = getApiUrl()
 
   try {
@@ -49,7 +49,8 @@ export const createPixTransaction = async ({ amount, customer, items, pix }) => 
         amount,
         customer,
         items,
-        pix
+        pix,
+        shippingAddress
       })
     })
 

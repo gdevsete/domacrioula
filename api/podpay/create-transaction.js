@@ -7,6 +7,8 @@
  * mantendo-a apenas no servidor (variáveis de ambiente Vercel).
  */
 
+import { createClient } from '@supabase/supabase-js'
+
 // Configuração CORS
 const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
@@ -46,7 +48,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { amount, customer, items, pix } = req.body
+    const { amount, customer, items, pix, shippingAddress } = req.body
 
     console.log('[PodPay] Received request:', JSON.stringify({ amount, customer: { ...customer, document: '***' }, items }))
 
@@ -151,6 +153,58 @@ export default async function handler(req, res) {
     // Calcular data de expiração (1 hora a partir de agora)
     const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString()
 
+    // Salvar pedido no Supabase (status: waiting_payment)
+    let orderNumber = null
+    try {
+      const supabaseUrl = process.env.SUPABASE_URL
+      const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        
+        // Gerar número do pedido
+        orderNumber = `DC${Date.now().toString(36).toUpperCase()}`
+
+        const pixData = data.pix || {}
+        const qrCode = pixData.qrCode || pixData.qrcode || pixData.copyPaste || data.qrCode || data.pixQrCode
+
+        const { error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            order_number: orderNumber,
+            items: items.map(i => ({
+              id: i.id,
+              name: i.title || i.name,
+              price: i.unitPrice || i.price,
+              quantity: i.quantity || 1,
+              image: i.image
+            })),
+            total: amount,
+            subtotal: amount,
+            customer: {
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+              document: customer.document
+            },
+            shipping_address: shippingAddress || null,
+            payment_method: 'pix',
+            transaction_id: data.id,
+            pix_code: qrCode,
+            status: 'waiting_payment',
+            created_at: new Date().toISOString()
+          })
+
+        if (orderError) {
+          console.error('[PodPay] Erro ao salvar pedido:', orderError)
+        } else {
+          console.log('[PodPay] Pedido salvo:', orderNumber)
+        }
+      }
+    } catch (saveError) {
+      console.error('[PodPay] Erro ao salvar pedido:', saveError)
+    }
+
     // Enviar notificação ao admin via WhatsApp
     try {
       const adminWhatsapp = process.env.ADMIN_WHATSAPP || '5551998137009'
@@ -179,16 +233,17 @@ export default async function handler(req, res) {
     }
 
     // Retornar dados da transação - tentar múltiplos caminhos possíveis
-    const pixData = data.pix || {}
+    const pixDataFinal = data.pix || {}
     return res.status(200).json({
       success: true,
       transactionId: data.id,
+      orderNumber: orderNumber,
       status: data.status,
       amount: data.amount,
       pix: {
-        qrCode: pixData.qrCode || pixData.qrcode || pixData.qr_code || data.pixQrCode || data.qrCode || data.qrcode,
-        qrCodeImage: pixData.qrCodeImage || pixData.qrcodeImage || pixData.qr_code_url || pixData.qrCodeUrl || data.pixQrCodeUrl,
-        copyPaste: pixData.copyPaste || pixData.copiaECola || pixData.qrCode || pixData.qrcode || data.pixQrCode || data.qrCode,
+        qrCode: pixDataFinal.qrCode || pixDataFinal.qrcode || pixDataFinal.qr_code || data.pixQrCode || data.qrCode || data.qrcode,
+        qrCodeImage: pixDataFinal.qrCodeImage || pixDataFinal.qrcodeImage || pixDataFinal.qr_code_url || pixDataFinal.qrCodeUrl || data.pixQrCodeUrl,
+        copyPaste: pixDataFinal.copyPaste || pixDataFinal.copiaECola || pixDataFinal.qrCode || pixDataFinal.qrcode || data.pixQrCode || data.qrCode,
         expiresAt: expiresAt // Usar data calculada
       },
       createdAt: data.createdAt || data.date_created || data.created_at,

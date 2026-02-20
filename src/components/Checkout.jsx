@@ -556,7 +556,16 @@ const Checkout = ({ isOpen, onClose, product, quantity = 1, onSuccess }) => {
           phone: formData.phone.replace(/\D/g, ''),
           document: formData.document.replace(/\D/g, '')
         },
-        items
+        items,
+        shippingAddress: {
+          street: formData.street,
+          streetNumber: formData.streetNumber,
+          complement: formData.complement,
+          neighborhood: formData.neighborhood,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode
+        }
       }
 
       const response = await createPixTransaction(transactionData)
